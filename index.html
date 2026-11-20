@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="我的花园">
+<meta name="theme-color" content="#2e7d32">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>我的花园 · 大悟种植手册</title>
+<style>
+:root{
+  --green:#2e7d32; --green-d:#1b5e20; --green-l:#e8f5e9;
+  --bg:#f2f7f2; --card:#ffffff; --line:#e0e8e0;
+  --txt:#263238; --txt2:#607d8b;
+  --flower:#ec407a; --flower-l:#fde3ec;
+  --fruit:#fb8c00; --fruit-l:#ffe8cc;
+  --plant:#43a047; --plant-l:#dff3e0;
+  --amber:#f59e0b; --amber-l:#fef3d9;
+  --red:#c62828; --red-l:#fde8e8;
+  --orange:#e64a19;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);font-size:15px}
+#app{max-width:540px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;box-shadow:0 0 24px rgba(0,0,0,.08)}
+header{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;padding:14px 16px 12px;position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(46,125,50,.25)}
+header .h-l{display:flex;align-items:center;gap:10px}
+header .logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px}
+header h1{font-size:17px;font-weight:600;letter-spacing:.5px}
+header .sub{font-size:11px;opacity:.85;margin-top:1px}
+header .h-btn{width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:16px;cursor:pointer}
+#pwa-tip{display:none;align-items:center;gap:8px;background:#e8f5e9;border-bottom:1px solid #c8e6c9;padding:9px 14px;font-size:12.5px;color:#2e7d32}
+#pwa-tip #pwa-tip-text{flex:1;min-width:0}
+#pwa-tip #pwa-install{background:#2e7d32;color:#fff;border:none;border-radius:14px;padding:5px 16px;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer}
+#pwa-tip #pwa-x{color:#81c784;cursor:pointer;padding:2px 4px;font-size:13px}
+main{padding:12px 12px 84px}
+.tab-page{display:none}.tab-page.active{display:block}
+/* ---------- chips & search ---------- */
+.search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:10px}
+.search-box input{flex:1;border:none;outline:none;font-size:15px;background:transparent;color:var(--txt)}
+.search-box .ic{font-size:16px;opacity:.5}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:6px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--txt2);cursor:pointer;white-space:nowrap;transition:.15s}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:500}
+.chip .cnt{font-size:11px;opacity:.75;margin-left:2px}
+/* ---------- plant cards ---------- */
+.plant-list{display:flex;flex-direction:column;gap:10px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer;transition:.15s;display:flex;gap:11px;align-items:stretch}
+.pcard:active{transform:scale(.985)}
+.pcard .pthumb{width:86px;min-width:86px;height:86px;border-radius:10px;background:linear-gradient(135deg,#f1f8e9,#dcedc8);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;align-self:center}
+.pcard .pthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pcard .pthumb .pthumb-fb{font-size:30px;font-weight:600;color:#558b2f;opacity:.55;letter-spacing:-1px;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.pcard .pthumb .pthumb-cat{position:absolute;top:4px;left:4px;font-size:9px;color:#fff;background:rgba(60,80,40,.55);padding:2px 5px;border-radius:4px;backdrop-filter:blur(4px)}
+.pcard .pthumb .pthumb-dot{position:absolute;bottom:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(86,139,47,.85)}
+.pcard .pthumb .pthumb-mine{position:absolute;bottom:4px;right:4px;font-size:9px;color:#fff;background:rgba(230,81,0,.8);padding:1.5px 5px;border-radius:4px;backdrop-filter:blur(4px)}
+.pcard .pbody{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+/* 添加植物按钮 */
+.fab{display:block;margin:4px 4px 12px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 3px 10px rgba(46,125,50,.28);transition:.15s}
+.fab:active{transform:scale(.97)}
+/* 月份多选 */
+.monpick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
+.monpick .mp{text-align:center;padding:7px 0;border-radius:8px;background:#eceff1;color:var(--txt2);font-size:12.5px;cursor:pointer;border:1.5px solid transparent;user-select:none}
+.monpick .mp.on{background:var(--green-l);color:var(--green-d);border-color:var(--green);font-weight:600}
+.pcard .pthumb .pthumb-mine{position:absolute;bottom:6px;right:6px;font-size:10px;color:#fff;background:rgba(230,81,0,.75);padding:2px 7px;border-radius:5px;backdrop-filter:blur(4px)}
+.pcard .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.pcard .nm{font-size:16px;font-weight:600}
+.pcard .cat{font-size:11px;color:var(--txt2);background:var(--green-l);padding:2px 8px;border-radius:6px;margin-left:8px}
+.badge{font-size:11px;padding:2.5px 9px;border-radius:999px;font-weight:500;flex:0 0 auto}
+.b-suit{background:var(--plant-l);color:var(--green-d)}
+.b-protect{background:var(--amber-l);color:#b45309}
+.b-strict{background:var(--fruit-l);color:#c2410c}
+.b-indoor{background:var(--red-l);color:var(--red)}
+.b-ok{background:#eceff1;color:#546e7a}
+.mstrip{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:2px}
+.mstrip i{height:8px;border-radius:2px;background:#eceff1;display:block}
+.mstrip i.f{background:var(--flower)}.mstrip i.u{background:var(--fruit)}.mstrip i.p{background:var(--plant)}
+.mlabels{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:2px}
+.mlabels span{font-size:8.5px;text-align:center;color:#b0bec5}
+.minfo{display:flex;gap:10px;margin-top:6px;font-size:11.5px;color:var(--txt2);flex-wrap:wrap}
+.minfo b{color:var(--flower);font-weight:500}.minfo .fr b{color:var(--fruit)}.minfo .pl b{color:var(--plant)}
+/* ---------- detail overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:540px;max-height:92vh;border-radius:18px 18px 0 0;overflow-y:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:#cfd8dc;margin:8px auto 2px}
+.sheet .close-x{position:sticky;top:8px;float:right;margin:8px 12px 0 0;width:30px;height:30px;border-radius:50%;border:none;background:#eceff1;color:var(--txt2);font-size:14px;cursor:pointer;z-index:5}
+.d-hero{position:relative;width:calc(100% + 36px);margin:0 -18px 8px;aspect-ratio:16/9;background:linear-gradient(135deg,#f1f8e9,#c8e6c9);overflow:hidden;display:flex;align-items:center;justify-content:center;max-height:280px}
+.d-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.d-hero .d-hero-fb{font-size:78px;font-weight:600;color:#558b2f;opacity:.55;letter-spacing:-2px;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+.d-hero .d-hero-cat{position:absolute;top:14px;left:14px;color:#fff;background:rgba(50,70,30,.55);padding:5px 11px;border-radius:7px;font-size:12px;backdrop-filter:blur(6px)}
+.d-hero .d-hero-tip{position:absolute;top:14px;left:50%;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.45);padding:4px 10px;border-radius:6px;font-size:11px;backdrop-filter:blur(6px)}
+.d-photo-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;border:none;padding:8px 13px;border-radius:8px;font-size:13px;cursor:pointer;backdrop-filter:blur(8px);font-weight:500}
+.d-photo-btn:active{transform:scale(.96);background:rgba(0,0,0,.7)}
+.d-photo-del{position:absolute;bottom:10px;left:10px;background:rgba(180,40,40,.65);color:#fff;border:none;padding:7px 11px;border-radius:8px;font-size:11.5px;cursor:pointer;backdrop-filter:blur(8px)}
+.d-head{padding:8px 18px 14px;border-bottom:1px solid var(--line)}
+.d-head .t{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.d-head .s{font-size:12px;color:var(--txt2);margin-top:4px}
+.d-sec{padding:14px 18px 4px}
+.d-sec h3{font-size:13.5px;color:var(--green-d);margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.d-sec h3::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--green)}
+/* calendar grid in detail */
+.calgrid{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:auto}
+.calrow{display:grid;grid-template-columns:52px repeat(12,1fr);gap:2px;margin-bottom:2px;align-items:center}
+.calrow .lbl{font-size:11px;color:var(--txt2);padding-right:4px}
+.calrow .lbl b{font-size:12px}
+.calrow i{height:20px;border-radius:4px;background:#eceff1;display:block;position:relative}
+.calrow i.f{background:var(--flower-l)}.calrow i.u{background:var(--fruit-l)}.calrow i.p{background:var(--plant-l)}
+.calrow .mon{font-size:9px;text-align:center;color:#b0bec5}
+.calrow i.cur{outline:2px solid var(--green);outline-offset:-1px}
+.callegend{display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--txt2);flex-wrap:wrap}
+.callegend span{display:flex;align-items:center;gap:4px}
+.callegend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.info-list{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.info-list .row{display:flex;padding:10px 14px;border-bottom:1px solid var(--line);gap:10px;font-size:13.5px;line-height:1.55}
+.info-list .row:last-child{border-bottom:none}
+.info-list .k{flex:0 0 64px;color:var(--txt2);font-size:12.5px}
+.info-list .v{flex:1}
+.pest-chips{display:flex;flex-wrap:wrap;gap:7px}
+.pest-chip{padding:6px 12px;border-radius:999px;font-size:12.5px;cursor:pointer;border:1px solid}
+.pc-虫害{background:#fff8f0;border-color:#f6c58a;color:#b45309}
+.pc-病害{background:#f4f9ff;border-color:#a9cdef;color:#1d6fb8}
+.pc-生理{background:#f3f9f3;border-color:#b5dfb8;color:#2e7d32}
+.d-actions{display:flex;gap:10px;padding:6px 18px 24px}
+.btn{flex:1;padding:11px;border-radius:12px;border:none;font-size:14.5px;font-weight:600;cursor:pointer}
+.btn-p{background:var(--green);color:#fff}.btn-o{background:var(--card);border:1.5px solid var(--green);color:var(--green)}
+/* ---------- calendar tab ---------- */
+.seg{display:flex;background:#e2eee3;border-radius:10px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:transparent;padding:8px;font-size:14px;color:var(--txt2);border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--green-d);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.mon-pills{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:12px}
+.mpill{padding:9px 4px;border-radius:10px;background:var(--card);border:1.5px solid var(--line);font-size:14px;text-align:center;cursor:pointer;color:var(--txt2)}
+.mpill.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.mpill small{display:block;font-size:10px;opacity:.75}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:10px}
+.mcard h4{font-size:14px;display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.mcard h4 .dot{width:8px;height:8px;border-radius:50%}
+.nmchips{display:flex;flex-wrap:wrap;gap:6px}
+.nmchip{padding:5px 11px;border-radius:999px;font-size:12.5px;cursor:pointer;border:1px solid}
+.nc-f{background:var(--flower-l);border-color:#f5b6cf;color:#b3416b}
+.nc-u{background:var(--fruit-l);border-color:#f5c48e;color:#a85a05}
+.nc-p{background:var(--plant-l);border-color:#a8d8ab;color:#2e6b32}
+.nc-x{background:#f4f9ff;border-color:#a9cdef;color:#1d6fb8}
+.tips li{font-size:13.5px;line-height:1.65;color:#37474f;margin:0 0 7px 18px}
+.tips li::marker{color:var(--green)}
+.clim{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1px solid #c5e1a5;border-radius:14px;padding:13px 15px;margin-bottom:12px;font-size:12.5px;line-height:1.7;color:#33691e}
+.clim b{font-size:13.5px}
+/* year table */
+.ytable-wrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ytable-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.yrow{display:flex;border-bottom:1px solid #eef2ee;align-items:stretch}
+.yrow.head{position:sticky;top:0;background:#f7faf7;font-size:10.5px;color:var(--txt2);font-weight:500}
+.yrow:last-child{border-bottom:none}
+.ynm{flex:0 0 92px;font-size:12px;padding:0 8px;display:flex;align-items:center;border-right:1px solid #eef2ee;line-height:1.3}
+.yrow.head .ynm{font-size:11px;justify-content:center}
+.ycells{display:grid;grid-template-columns:repeat(12,1fr);flex:1}
+.ycell{height:26px;border-right:1px solid #f2f5f2;position:relative}
+.ycell:last-child{border-right:none}
+.ycell-h{display:flex;align-items:center;justify-content:center;font-size:10px;color:#78909c}
+.ycell:not(.ycell-h)::after{content:"";position:absolute;inset:3px 2.5px;border-radius:3px;background:#eceff1}
+.ycell.f::after{background:var(--flower)}.ycell.u::after{background:var(--fruit)}.ycell.p::after{background:var(--plant)}.ycell.fp::after{background:linear-gradient(90deg,var(--flower) 50%,var(--fruit) 50%)}.ycell.pf::after{background:linear-gradient(90deg,var(--plant) 50%,var(--flower) 50%)}
+.yrow.curmon .ycell:nth-child(var(--cm)){background:#e8f5e9}
+/* ---------- diary ---------- */
+.diary-top{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.dsearch{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:14px;outline:none;color:var(--txt)}
+.addbtn{flex:0 0 auto;background:var(--green);color:#fff;border:none;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer}
+.dentry{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:10px}
+.dentry .eh{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.dentry .dt{font-size:12px;color:var(--txt2)}
+.dentry .pl-nm{font-size:14.5px;font-weight:600;color:var(--green-d);cursor:pointer}
+.stage-b{font-size:11px;padding:2px 9px;border-radius:999px;background:var(--green-l);color:var(--green-d);font-weight:500}
+.dentry .txt{font-size:13.5px;line-height:1.65;white-space:pre-wrap;color:#37474f}
+.dentry .del{margin-left:auto;border:none;background:#eceff1;color:#b0bec5;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:12px}
+.dmedia{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}
+.dmedia .m-item{position:relative;border-radius:10px;overflow:hidden;background:#eceff1}
+.dmedia img,.dmedia video{width:100%;height:88px;object-fit:cover;display:block}
+.dmedia .vtag{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;padding:1px 6px;border-radius:4px}
+.dentry .ft{margin-top:8px;font-size:11px;color:#b0bec5}
+/* 以植物为主体的日记分组 */
+.dgroup{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.dgroup .dg-head{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer}
+.dgroup .dg-thumb{width:46px;height:46px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#f1f8e9,#dcedc8);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.dgroup .dg-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.dgroup .dg-fb{font-size:19px;color:#558b2f;opacity:.6;font-weight:600}
+.dg-main{flex:1;min-width:0}
+.dg-nm{font-size:14.5px;font-weight:600;color:var(--green-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-meta{display:flex;align-items:center;gap:7px;margin-top:4px;flex-wrap:wrap}
+.dg-dt{font-size:11.5px;color:var(--txt2)}
+.dg-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:0 0 auto}
+.dg-day{font-size:11px;color:#90a4ae}
+.dg-caret{font-size:11px;color:#b0bec5;transition:.2s}
+.dgroup.open .dg-caret{transform:rotate(180deg)}
+.dg-body{padding:10px 13px 12px;border-top:1px solid var(--line)}
+.dg-add{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.dg-add button{border:none;background:var(--green);color:#fff;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.dg-add .lnk{background:#e8f5e9;color:var(--green-d);font-weight:500}
+.timeline{position:relative;padding-left:14px}
+.timeline::before{content:"";position:absolute;left:3px;top:6px;bottom:6px;width:2px;background:#e8f5e9;border-radius:2px}
+.tl-item{position:relative;margin-bottom:10px}
+.tl-dot{position:absolute;left:-14px;top:11px;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px #fff}
+.tl-card{background:#fafcf9;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.tl-h{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.tl-dt{font-size:12px;color:var(--txt2)}
+.tl-gap{font-size:11px;color:#7cb342;background:#f1f8e9;border-radius:999px;padding:1px 7px}
+.tl-no{font-size:11px;color:#fff;background:var(--green);border-radius:999px;padding:1px 8px;font-weight:600}
+.dg-tip{font-size:11px;color:#b0bec5;margin-left:auto}
+.tl-act{margin-left:auto;display:flex;gap:5px}
+.tl-act button{border:none;background:#eceff1;color:#78909c;width:27px;height:27px;border-radius:7px;font-size:12px;cursor:pointer}
+/* 植物名搜索建议 */
+.sug{border:1px solid var(--line);border-radius:10px;background:#fff;max-height:220px;overflow:auto;margin-top:5px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.sug-t{font-size:11px;color:#90a4ae;padding:7px 12px 4px}
+.sug-i{padding:9px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid #f5f7f5}
+.sug-i:active{background:#f1f8e9}
+.sug-new{color:var(--green-d);font-weight:600}
+.f-hint{font-size:11px;color:#e65100;margin-top:5px}
+.empty{text-align:center;padding:44px 20px;color:#90a4ae;font-size:13.5px;line-height:1.8}
+.empty .e-ic{font-size:40px;margin-bottom:8px}
+/* form */
+.f-sec{margin-bottom:13px}
+.f-sec label{display:block;font-size:12.5px;color:var(--txt2);margin-bottom:5px}
+.f-sec input[type=date],.f-sec select,.f-sec textarea,.f-sec input[type=text]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14.5px;font-family:inherit;background:var(--card);color:var(--txt);outline:none}
+.f-sec textarea{min-height:92px;resize:vertical;line-height:1.6}
+.f-sec textarea:focus,.f-sec input:focus,.f-sec select:focus{border-color:var(--green)}
+.fup{display:flex;flex-wrap:wrap;gap:7px}
+.fup .ph{width:64px;height:64px;border-radius:10px;border:1.5px dashed #b0bec5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#90a4ae;cursor:pointer;gap:2px;background:var(--card)}
+.fup .ph span{font-size:20px}
+.fup .pre{width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:#eceff1}
+.fup .pre img,.fup .pre video{width:100%;height:100%;object-fit:cover}
+.fup .pre .rm{position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;font-size:10px;cursor:pointer;line-height:1}
+.stage-pick{display:flex;flex-wrap:wrap;gap:6px}
+.stage-pick .schip{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:12.5px;color:var(--txt2);cursor:pointer}
+.stage-pick .schip.on{background:var(--green);border-color:var(--green);color:#fff}
+/* ---------- pests ---------- */
+.pest-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;cursor:pointer}
+.pest-card .ph{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.pest-card .nm{font-size:15.5px;font-weight:600;flex:1}
+.t-b{font-size:11px;padding:2px 9px;border-radius:6px;font-weight:500}
+.tb-虫害{background:#fff3e0;color:#e65100}
+.tb-病害{background:#e3f2fd;color:#1565c0}
+.tb-生理{background:#e8f5e9;color:#2e7d32}
+.pest-card .ss{font-size:12.5px;color:var(--txt2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pest-card .se{font-size:11px;color:#b0bec5;margin-top:5px}
+.drug-tbl{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.drug-tbl .dr{display:flex;padding:10px 13px;border-bottom:1px solid var(--line);gap:10px;font-size:13px;line-height:1.55}
+.drug-tbl .dr:last-child{border-bottom:none}
+.drug-tbl .dn{flex:0 0 44%;font-weight:600;color:var(--green-d)}
+.drug-tbl .du{flex:1;color:#455a64}
+.org-list li,.prev-list li{font-size:13px;line-height:1.65;margin:0 0 6px 18px;color:#37474f}
+.org-list li::marker{content:"🌿 "}
+.prev-list li::marker{content:"✓ ";color:var(--green)}
+.mon-tag{display:inline-block;padding:3px 8px;border-radius:6px;background:#eceff1;color:#546e7a;font-size:11.5px;margin:0 4px 5px 0}
+/* ---------- settings modal ---------- */
+.set-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.set-mask.show{display:flex}
+.set-card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto}
+.set-card h3{font-size:16px;margin-bottom:12px;color:var(--green-d)}
+.set-card p{font-size:13px;line-height:1.7;color:#546e7a;margin-bottom:12px}
+.set-card .btn{width:100%;margin-bottom:9px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(38,50,56,.92);color:#fff;padding:9px 20px;border-radius:999px;font-size:13.5px;z-index:300;opacity:0;transition:.25s;pointer-events:none;max-width:80vw;text-align:center}
+.toast.show{opacity:1}
+/* ---------- bottom nav ---------- */
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;background:var(--card);border-top:1px solid var(--line);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:none;background:none;padding:8px 0 9px;font-size:10.5px;color:#90a4ae;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ni{font-size:21px;line-height:1}
+nav button.on{color:var(--green);font-weight:600}
+@media(min-width:600px){#app{margin-top:0} .mpill{font-size:13px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="h-l">
+      <div class="logo">🌻</div>
+      <div>
+        <h1>我的花园</h1>
+        <div class="sub">湖北孝感·大悟县气候适配</div>
+      </div>
+    </div>
+    <button class="h-btn" onclick="openSettings()" title="备份与设置">⚙️</button>
+  </header>
+
+  <div id="pwa-tip">
+    <span id="pwa-tip-text">把「我的花园」安装到手机桌面，离线也能用</span>
+    <button id="pwa-install" onclick="doInstall()">安装</button>
+    <span id="pwa-x" onclick="hidePwaTip(true)">✕</span>
+  </div>
+
+  <main>
+    <!-- ============ 图鉴 ============ -->
+    <section id="page-catalog" class="tab-page active">
+      <div class="search-box"><span class="ic">🔍</span><input id="q" placeholder="搜索植物名称 / 习性 / 光照…" oninput="renderCatalog()"></div>
+      <div id="photo-stat" style="font-size:12px;color:var(--txt2);margin:-4px 4px 8px;display:flex;align-items:center;gap:6px"></div>
+      <button class="fab" onclick="openPlantForm()" title="添加新植物">＋ 添加植物</button>
+      <div class="chips" id="cat-chips"></div>
+      <div class="chips" id="lvl-chips"></div>
+      <div class="plant-list" id="plant-list"></div>
+    </section>
+
+    <!-- ============ 日历 ============ -->
+    <section id="page-cal" class="tab-page">
+      <div class="seg">
+        <button id="seg-m" class="on" onclick="calMode('m')">月历提醒</button>
+        <button id="seg-y" onclick="calMode('y')">全年总览表</button>
+      </div>
+      <div id="cal-month">
+        <div class="clim" id="clim-card"></div>
+        <div class="mon-pills" id="mon-pills"></div>
+        <div id="mon-detail"></div>
+      </div>
+      <div id="cal-year" style="display:none">
+        <div class="chips" id="y-chips"></div>
+        <div class="calgrid" style="padding:10px">
+          <div class="callegend" style="margin:0 0 8px"><span><i style="background:var(--plant)"></i>可种植</span><span><i style="background:var(--flower)"></i>开花</span><span><i style="background:var(--fruit)"></i>结果</span><span><i style="background:linear-gradient(90deg,var(--plant) 50%,var(--flower) 50%)"></i>种植+开花</span></div>
+        </div>
+        <div class="ytable-wrap"><div class="ytable-scroll"><div id="ytable"></div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 日记 ============ -->
+    <section id="page-diary" class="tab-page">
+      <div class="diary-top">
+        <input class="dsearch" id="dq" placeholder="搜索植物名或记录内容…" oninput="renderDiary()">
+        <button class="addbtn" onclick="openDiaryForm()">＋ 记一笔</button>
+      </div>
+      <div id="diary-list"></div>
+    </section>
+
+    <!-- ============ 防治 ============ -->
+    <section id="page-pest" class="tab-page">
+      <div class="search-box"><span class="ic">🔍</span><input id="pq" placeholder="搜索病虫害 / 症状 / 药剂…" oninput="renderPests()"></div>
+      <div class="chips" id="pt-chips"></div>
+      <div id="pest-list"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button id="nav-catalog" class="on" onclick="go('catalog')"><span class="ni">🌿</span>植物图鉴</button>
+    <button id="nav-cal" onclick="go('cal')"><span class="ni">📅</span>种植日历</button>
+    <button id="nav-diary" onclick="go('diary')"><span class="ni">📖</span>种植日记</button>
+    <button id="nav-pest" onclick="go('pest')"><span class="ni">🛡️</span>病虫防治</button>
+  </nav>
+</div>
+
+<!-- detail sheet -->
+<div class="overlay" id="ovl" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet"></div>
+</div>
+<!-- diary form -->
+<div class="overlay" id="fov" onclick="if(event.target===this)closeForm(false)">
+  <div class="sheet" id="fsheet"></div>
+</div>
+<!-- settings -->
+<div class="set-mask" id="setmask" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="set-card">
+    <h3>⚙️ 设置与备份</h3>
+    <p>日记数据保存在本设备的浏览器中（IndexedDB），换设备或清理浏览器前请先导出备份。</p>
+    <button class="btn btn-p" onclick="exportData()">📦 导出备份（含图片视频）</button>
+    <button class="btn btn-o" onclick="document.getElementById('imp').click()">📥 导入恢复</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importData(this)">
+    <p style="margin-top:14px;font-size:12px;color:#90a4ae">💡 手机使用：用浏览器打开本页面后，通过浏览器菜单「添加到主屏幕」，即可像小程序一样全屏使用。</p>
+    <button class="btn" style="background:#eceff1;color:#546e7a" onclick="document.getElementById('setmask').classList.remove('show')">关闭</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const APP_DATA = {"plants":[{"id":1,"name":"蓝雪花","cat":"草本/灌木","tags":["草花","灌木"],"periodText":"花期7-9月，果期8-10月","flower":[7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜全日照，耐半阴","soil":"喜微酸性土壤，耐轻度盐碱","position":"前景/中景","care":"喜高温高湿环境，耐旱怕涝，生长期需充足水肥，花后及时修剪，冬季做好防寒措施","adapt":"需冬季防寒，可盆栽/地栽防护种植，短期耐-8℃低温，大悟极端低温需包裹保温","adaptLevel":"protect","adaptText":"需冬季防护","hardy":null,"life":"","plant":[3,4],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":2,"name":"三角梅","cat":"藤本/灌木","tags":["藤本","灌木"],"periodText":"花期5-10月，南方温暖地区可全年开花","flower":[1,2,3,4,5,6,7,8,9,10,11,12],"fruit":[],"flowerNote":"大悟5-10月开花，室内越冬养护好可延后","light":"喜充足直射光，每日需6小时以上光照","soil":"喜微酸性土壤，忌盐碱","position":"中景/骨架","care":"喜温暖湿润环境，耐旱怕积水，花期前需控水促花，生长期增施磷钾肥，花后修剪残花","adapt":"需盆栽入室越冬，地栽需严格防寒，耐寒-5℃，大悟冬季低温易冻伤","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":-5,"life":"","plant":[4,5],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":3,"name":"花叶络石","cat":"藤本/地被","tags":["藤本","地被"],"periodText":"花期3-7月，果期7-12月","flower":[3,4,5,6,7],"fruit":[7,8,9,10,11,12],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜微酸性至中性土壤","position":"地被/前景","care":"喜温暖湿润环境，耐干旱，忌积水，生长期保持土壤湿润，定期施肥，可垂吊或攀援生长","adapt":"完全适合，可露地越冬，耐寒-10℃，适配大悟微酸性土壤与气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[2,3,11,12],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":4,"name":"绣线菊","cat":"灌木","tags":["灌木"],"periodText":"花期6-8月，果期8-9月","flower":[6,7,8],"fruit":[8,9],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃湿润的中性土壤，耐轻度盐碱","position":"中景/花境","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，促进二次开花","adapt":"完全适合，耐寒-20℃，耐贫瘠，适配大悟土壤与气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":5,"name":"柠檬树","cat":"果树","tags":["果树"],"periodText":"花期4-5月，果期9-11月","flower":[4,5],"fruit":[9,10,11],"flowerNote":"","light":"喜充足阳光，每日需8小时以上光照","soil":"喜微酸性土壤（pH5.5-6.5）","position":"骨架/中景","care":"喜温暖湿润环境，不耐寒，生长期需充足水肥，定期修剪，花前增施磷钾肥，冬季做好防冻","adapt":"需盆栽入室越冬，地栽需防寒，耐寒-3℃，大悟冬季低温易冻害","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":-3,"life":"","plant":[3,4,10,11],"pests":["介壳虫","红蜘蛛（叶螨）","炭疽病","煤污病"]},{"id":6,"name":"翠芦莉","cat":"草本/地被","tags":["地被","草花"],"periodText":"花期4-10月，果期7-11月","flower":[4,5,6,7,8,9,10],"fruit":[7,8,9,10,11],"flowerNote":"","light":"喜全日照，耐半阴","soil":"不择土壤，耐轻度盐碱","position":"地被/前景","care":"喜高温，耐酷暑，耐贫瘠，耐旱，生长期保持土壤湿润，花后及时修剪，可自播繁殖","adapt":"需冬季防寒，可种植，耐寒-5℃，大悟冬季需简单防护","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":7,"name":"菊花","cat":"草本","tags":["草花"],"periodText":"花期9-11月，果期10-12月","flower":[9,10,11],"fruit":[10,11,12],"flowerNote":"","light":"喜充足阳光，短日照植物","soil":"喜肥沃疏松的微酸性至中性土壤","position":"花境/中景","care":"耐寒，忌积水，生长期需充足水肥，花期前增施磷钾肥，花后及时修剪，冬季地上部分枯萎，次年复萌","adapt":"完全适合，耐寒-10℃以上，适配大悟微酸性土壤与气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[4,5,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":8,"name":"剑兰","cat":"草本/球根","tags":["球根","草花"],"periodText":"花期7-9月，果期8-10月","flower":[7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，长日照植物","soil":"喜肥沃疏松的微酸性土壤","position":"花境/中景","care":"喜温暖湿润环境，忌积水，生长期需充足水肥，花后及时剪去花葶，球根可挖起贮藏越冬","adapt":"完全适合，球根植物，耐寒-10℃，可露地越冬","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[3,4],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":9,"name":"百子莲","cat":"草本/球根","tags":["球根","草花"],"periodText":"花期7-8月，果期8-10月","flower":[7,8],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的微酸性至中性土壤","position":"花境/中景","care":"喜温暖湿润环境，耐寒性一般，生长期需充足水肥，花后及时修剪，冬季做好防寒措施","adapt":"需冬季简单防护，可种植，耐寒-8℃，大悟极端低温需保温","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-8,"life":"","plant":[3,4,9,10],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":10,"name":"蓝冰柏","cat":"乔木/灌木","tags":["乔木","灌木"],"periodText":"花期4-5月，果期10-11月","flower":[4,5],"fruit":[10,11],"flowerNote":"","light":"喜充足阳光","soil":"喜微酸性至中性土壤，忌盐碱","position":"骨架/中景","care":"耐寒耐旱，忌积水，生长期保持土壤湿润，定期施肥，冬季无需特殊养护，四季呈蓝灰色","adapt":"完全适合，耐寒-20℃，耐旱，适配大悟微酸性土壤","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":11,"name":"风雨兰","cat":"草本/球根","tags":["球根","草花"],"periodText":"花期4-9月，果期7-10月","flower":[4,5,6,7,8,9],"fruit":[7,8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/前景","care":"喜温暖湿润环境，耐旱，忌积水，生长期需充足水肥，花后及时修剪，球根可露地越冬","adapt":"完全适合，球根植物，耐寒-10℃，耐湿耐旱","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[3,4],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":12,"name":"鼠尾草","cat":"草本/亚灌木","tags":["草花","亚灌木"],"periodText":"花期6-9月，果期8-10月","flower":[6,7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的中性至微碱性土壤","position":"花境/中景","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，可促进二次开花，冬季地上部分枯萎","adapt":"完全适合，耐寒-15℃，耐旱，适配大悟土壤","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":13,"name":"松果菊","cat":"草本","tags":["草花"],"periodText":"花期6-8月，果期7-9月","flower":[6,7,8],"fruit":[7,8,9],"flowerNote":"","light":"喜充足阳光","soil":"喜肥沃疏松的中性至微碱性土壤","position":"花境/中景","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，冬季地上部分枯萎，次年复萌","adapt":"完全适合，耐寒-20℃，耐旱耐贫瘠，适配大悟气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":14,"name":"百合","cat":"草本/球根","tags":["球根","草花"],"periodText":"花期5-8月，果期7-9月","flower":[5,6,7,8],"fruit":[7,8,9],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的微酸性土壤","position":"花境/中景","care":"喜凉爽湿润环境，忌积水，生长期需充足水肥，花后及时剪去花葶，球根可留土越冬","adapt":"完全适合，球根植物，耐寒-10℃以上，适配大悟微酸性土壤","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[10,11],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":15,"name":"狐尾天门冬","cat":"草本/地被","tags":["地被","草花"],"periodText":"花期5-8月，果期7-9月","flower":[5,6,7,8],"fruit":[7,8,9],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/前景","care":"喜温暖湿润环境，耐干旱，忌积水，生长期保持土壤湿润，定期施肥，冬季做好防寒措施","adapt":"需盆栽入室越冬，耐寒-5℃，大悟冬季需防护","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":-5,"life":"","plant":[3,4],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":16,"name":"向日葵（光辉岁月）","cat":"草本","tags":["草花"],"periodText":"花期7-9月，果期8-10月","flower":[7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，强阳性植物","soil":"喜肥沃疏松的中性至微碱性土壤","position":"中景/花境","care":"喜温暖湿润环境，耐旱，忌积水，生长期需充足水肥，花期前增施磷钾肥，花后及时修剪","adapt":"完全适合，一年生植物，喜温暖，大悟夏季生长旺盛，冬季枯死","adaptLevel":"suit","adaptText":"完全适合","hardy":null,"life":"","plant":[4,5],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":17,"name":"鸡爪槭","cat":"乔木/灌木","tags":["乔木","灌木"],"periodText":"花期5-6月，果期9-10月","flower":[5,6],"fruit":[9,10],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜疏松肥沃的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期保持土壤湿润，秋季叶片变红，冬季做好防寒","adapt":"完全适合，耐寒-20℃，喜微酸性土壤，耐湿，适配大悟气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":18,"name":"铁线莲","cat":"藤本","tags":["藤本"],"periodText":"花期5-9月，果期6-10月","flower":[5,6,7,8,9],"fruit":[6,7,8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的微酸性至中性土壤","position":"中景/攀援","care":"喜凉爽湿润环境，忌积水，生长期需充足水肥，花后及时修剪，不同品种修剪方式不同，需做好支架","adapt":"完全适合，耐寒-15℃，喜微酸性土壤，耐旱耐湿","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":19,"name":"长春花","cat":"亚灌木/草本","tags":["草花","亚灌木"],"periodText":"花期全年，果期全年","flower":[1,2,3,4,5,6,7,8,9,10,11,12],"fruit":[1,2,3,4,5,6,7,8,9,10,11,12],"flowerNote":"大悟气候下4-10月为盛花期","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/前景","care":"喜高温高湿环境，耐贫瘠，忌积水，生长期需充足水肥，花期前增施磷钾肥，可四季开花","adapt":"需盆栽入室越冬，一年生栽培，耐寒0℃，大悟冬季低温易冻死","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":0,"life":"","plant":[4,5],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":20,"name":"木绣球","cat":"灌木","tags":["灌木"],"periodText":"花期4-6月，果期7-8月","flower":[4,5,6],"fruit":[7,8],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜肥沃疏松的微酸性至中性土壤","position":"中景/花境","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花后及时修剪，冬季做好防寒","adapt":"完全适合，耐寒-15℃，喜微酸性土壤，耐湿，适配大悟气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":21,"name":"朱顶红","cat":"草本/球根","tags":["球根","草花"],"periodText":"花期4-6月，果期7-8月","flower":[4,5,6],"fruit":[7,8],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"花境/中景","care":"喜温暖湿润环境，忌积水，生长期需充足水肥，花后及时剪去花葶，球根可留土越冬","adapt":"需冬季简单防护，可种植，球根植物，耐寒-5℃，大悟极端低温需保温","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[3,4],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":22,"name":"黄木香","cat":"藤本/灌木","tags":["藤本","灌木"],"periodText":"花期4-6月，果期7-8月","flower":[4,5,6],"fruit":[7,8],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的中性至微碱性土壤","position":"中景/攀援","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花后及时修剪，需做好支架","adapt":"完全适合，耐寒-15℃，微酸性土壤适配，耐湿","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":23,"name":"紫薇花","cat":"灌木/乔木","tags":["乔木","灌木"],"periodText":"花期6-9月，果期10-11月","flower":[6,7,8,9],"fruit":[10,11],"flowerNote":"","light":"喜充足阳光","soil":"喜肥沃疏松的中性至微碱性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐旱，忌积水，生长期需充足水肥，花后及时修剪，可促进二次开花","adapt":"完全适合，耐寒-20℃，耐旱耐湿，微酸性土壤适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":24,"name":"五色梅","cat":"灌木","tags":["灌木"],"periodText":"花期全年，果期全年","flower":[1,2,3,4,5,6,7,8,9,10,11,12],"fruit":[1,2,3,4,5,6,7,8,9,10,11,12],"flowerNote":"大悟气候下5-10月为盛花期","light":"喜充足阳光，耐半阴","soil":"不择土壤，耐贫瘠","position":"中景/花境","care":"喜高温高湿环境，耐旱，忌积水，生长期需充足水肥，花后及时修剪，可四季开花","adapt":"需盆栽入室越冬，耐寒-3℃，大悟冬季低温易冻伤","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":-3,"life":"","plant":[4,5],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":25,"name":"喷雪花","cat":"灌木","tags":["灌木"],"periodText":"花期3-4月，果期6-7月","flower":[3,4],"fruit":[6,7],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的中性至微碱性土壤","position":"中景/花境","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，春季开花，夏季叶片翠绿","adapt":"完全适合，耐寒-15℃，需低温春化，大悟冬季低温完全满足","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":26,"name":"桑蓓斯","cat":"草本/观叶","tags":["观叶"],"periodText":"花期7-9月，果期8-10月","flower":[7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/前景","care":"喜温暖湿润环境，耐干旱，忌积水，生长期保持土壤湿润，定期施肥，叶片色彩丰富","adapt":"需冬季防寒，可种植，耐寒-5℃，大悟冬季需简单防护","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[4,5,9],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":27,"name":"穗花牡荆","cat":"灌木","tags":["灌木"],"periodText":"花期6-8月，果期9-10月","flower":[6,7,8],"fruit":[9,10],"flowerNote":"","light":"喜充足阳光","soil":"喜肥沃疏松的中性至微碱性土壤","position":"中景/花境","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，可促进二次开花，花序修长","adapt":"完全适合，耐寒-15℃，耐旱耐湿，微酸性土壤适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":28,"name":"旱金莲","cat":"草本/藤本","tags":["藤本","草花"],"periodText":"花期6-10月，果期7-11月","flower":[6,7,8,9,10],"fruit":[7,8,9,10,11],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/攀援","care":"喜温暖湿润环境，耐旱，忌积水，生长期需充足水肥，花后及时修剪，可垂吊或攀援生长","adapt":"需盆栽入室越冬，一年生栽培，耐寒0℃，大悟冬季低温易冻死","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":0,"life":"","plant":[3,4],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":29,"name":"重瓣麦李","cat":"灌木","tags":["灌木"],"periodText":"花期3-4月，果期5-6月","flower":[3,4],"fruit":[5,6],"flowerNote":"","light":"喜充足阳光","soil":"喜肥沃疏松的中性至微碱性土壤","position":"中景/花境","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，春季开花，花粉红色重瓣","adapt":"完全适合，耐寒-20℃，微酸性土壤适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":30,"name":"女贞","cat":"乔木/灌木","tags":["乔木","灌木"],"periodText":"花期5-7月，果期8-10月","flower":[5,6,7],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的中性至微碱性土壤","position":"骨架/绿篱","care":"耐寒耐旱，耐修剪，忌积水，生长期需充足水肥，可修剪成绿篱或造型树，四季常绿","adapt":"完全适合，耐寒-20℃，耐贫瘠，耐湿耐旱","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":31,"name":"风车茉莉","cat":"藤本/灌木","tags":["藤本","灌木"],"periodText":"花期3-7月，果期7-12月","flower":[3,4,5,6,7],"fruit":[7,8,9,10,11,12],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜微酸性至中性土壤","position":"地被/攀援","care":"喜温暖湿润环境，耐干旱，忌积水，生长期保持土壤湿润，定期施肥，可垂吊或攀援生长，花芳香","adapt":"完全适合，耐寒-10℃，微酸性土壤适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[2,3,11,12],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":32,"name":"脆皮金桔","cat":"果树","tags":["果树"],"periodText":"花期4-5月，果期11-12月","flower":[4,5],"fruit":[11,12],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜微酸性土壤（pH5.5-6.5）","position":"骨架/中景","care":"喜温暖湿润环境，不耐寒，生长期需充足水肥，定期修剪，花前增施磷钾肥，冬季做好防冻","adapt":"需盆栽入室越冬，地栽需防寒，耐寒-5℃，大悟冬季低温易冻害","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":-5,"life":"","plant":[3,4,10,11],"pests":["介壳虫","红蜘蛛（叶螨）","炭疽病","煤污病"]},{"id":33,"name":"无花果","cat":"果树","tags":["果树"],"periodText":"花期5-7月，果期8-10月","flower":[5,6,7],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，每日需8小时以上光照","soil":"喜肥沃疏松的中性至微碱性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐旱，忌积水，生长期需充足水肥，定期修剪，果期增施磷钾肥，冬季做好防寒","adapt":"需冬季简单防护，可露地越冬，耐寒-10℃，适配大悟微酸性土壤","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":34,"name":"樱桃","cat":"果树","tags":["果树"],"periodText":"花期3-4月，果期5-6月","flower":[3,4],"fruit":[5,6],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜肥沃疏松的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花前增施磷钾肥，冬季做好防寒","adapt":"完全适合，耐寒-20℃，喜微酸性土壤，大悟气候完全适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":35,"name":"蜂糖李","cat":"果树","tags":["果树"],"periodText":"花期3-4月，果期6-7月","flower":[3,4],"fruit":[6,7],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜肥沃疏松的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花前增施磷钾肥，冬季做好防寒","adapt":"完全适合，耐寒-15℃，微酸性土壤适配，大悟气候适合","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":36,"name":"石榴树","cat":"果树/灌木","tags":["果树","灌木"],"periodText":"花期5-6月，果期9-10月","flower":[5,6],"fruit":[9,10],"flowerNote":"","light":"喜充足阳光，强阳性植物","soil":"喜肥沃疏松的中性至微碱性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐旱，忌积水，生长期需充足水肥，花前增施磷钾肥，冬季做好防寒","adapt":"完全适合，耐寒-15℃，耐旱耐湿，微酸性土壤适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":37,"name":"西府海棠","cat":"乔木/灌木","tags":["乔木","灌木"],"periodText":"花期3-4月，果期8-9月","flower":[3,4],"fruit":[8,9],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花后及时修剪，冬季做好防寒","adapt":"完全适合，耐寒-20℃，喜微酸性土壤，耐旱忌涝","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":38,"name":"枇杷","cat":"果树","tags":["果树"],"periodText":"花期10-12月，果期次年5-6月","flower":[10,11,12],"fruit":[5,6],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，不耐寒，生长期需充足水肥，冬季开花，花前增施磷钾肥，冬季做好防冻","adapt":"需冬季避寒防护，可种植，耐寒-10℃，花器怕冻，需选背风向阳位置","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-10,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":39,"name":"橙子","cat":"果树","tags":["果树"],"periodText":"花期4-5月，果期10-11月","flower":[4,5],"fruit":[10,11],"flowerNote":"","light":"喜充足阳光，每日需8小时以上光照","soil":"喜微酸性土壤（pH5.5-6.5）","position":"骨架/中景","care":"喜温暖湿润环境，不耐寒，生长期需充足水肥，定期修剪，花前增施磷钾肥，冬季做好防冻","adapt":"需盆栽入室越冬，地栽需严格防寒，耐寒-5℃，大悟冬季低温易冻害，种植难度大","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":-5,"life":"","plant":[3,4,10,11],"pests":["介壳虫","红蜘蛛（叶螨）","炭疽病","煤污病"]},{"id":40,"name":"太阳花","cat":"草本/地被","tags":["地被","草花"],"periodText":"花期6-9月，果期7-10月","flower":[6,7,8,9],"fruit":[7,8,9,10],"flowerNote":"","light":"喜充足阳光，强阳性植物","soil":"不择土壤，耐贫瘠","position":"地被/前景","care":"喜高温，耐酷暑，耐旱，忌积水，生长期保持土壤湿润，花后及时修剪，可自播繁殖","adapt":"需盆栽入室越冬，一年生栽培，耐寒0℃，大悟冬季低温易冻死","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":0,"life":"","plant":[4,5],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":41,"name":"佛甲草","cat":"草本/地被","tags":["地被","草花"],"periodText":"花期4-5月，果期6-7月","flower":[4,5],"fruit":[6,7],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"不择土壤，耐贫瘠","position":"地被/前景","care":"耐寒耐旱，忌积水，生长期保持土壤湿润，定期施肥，四季常绿，可做屋顶绿化","adapt":"完全适合，耐寒-20℃，耐旱耐贫瘠，地被植物，适配大悟气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":42,"name":"过路黄","cat":"草本/地被","tags":["地被","草花"],"periodText":"花期5-7月，果期8-9月","flower":[5,6,7],"fruit":[8,9],"flowerNote":"","light":"喜半阴环境，耐全日照","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/前景","care":"喜温暖湿润环境，耐干旱，忌积水，生长期保持土壤湿润，定期施肥，可匍匐生长","adapt":"完全适合，耐寒-15℃，耐湿，地被植物，适配大悟气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":43,"name":"酢浆草","cat":"草本/地被","tags":["地被","草花"],"periodText":"花期2-9月，果期3-10月","flower":[2,3,4,5,6,7,8,9],"fruit":[3,4,5,6,7,8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"地被/前景","care":"喜温暖湿润环境，耐旱，忌积水，生长期保持土壤湿润，花后及时修剪，可自播繁殖","adapt":"需盆栽入室越冬，耐寒0℃，大悟冬季低温易冻死","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":0,"life":"","plant":[3,4,9],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":44,"name":"八重小手鞠（重瓣/凌叶绣线菊","cat":"灌木","tags":["灌木"],"periodText":"花期5-6月，果期7-8月","flower":[5,6],"fruit":[7,8],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜肥沃疏松的中性至微碱性土壤","position":"中景/花境","care":"耐寒耐旱，忌积水，生长期需充足水肥，花后及时修剪，可促进二次开花，花重瓣","adapt":"完全适合，耐寒-15℃，喜微酸性土壤，适配大悟气候","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":45,"name":"桃树","cat":"果树","tags":["果树"],"periodText":"花期3-4月，果期6-8月","flower":[3,4],"fruit":[6,7,8],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜肥沃疏松的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花前增施磷钾肥，冬季做好防寒","adapt":"完全适合，耐寒-20℃，微酸性土壤适配，大悟气候完全适合","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":46,"name":"脆柿","cat":"果树","tags":["果树"],"periodText":"花期5-6月，果期9-10月","flower":[5,6],"fruit":[9,10],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜肥沃疏松的微酸性至中性土壤","position":"骨架/中景","care":"喜温暖湿润环境，耐寒性一般，忌积水，生长期需充足水肥，花前增施磷钾肥，冬季做好防寒","adapt":"完全适合，耐寒-15℃，耐旱耐湿，微酸性土壤适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":47,"name":"墨西哥飞蓬","cat":"草花","tags":["草花"],"periodText":"花期早春至深秋，夏季高温花量减少；果期随花期，种子自播能力强","flower":[3,4,5,6,7,8,9,10,11],"fruit":[5,6,7,8,9,10,11],"flowerNote":"早春至深秋连续开花，夏季高温花量减少，自播能力强","light":"全日照至半日照均可，全日照开花效果更好","soil":"不择土壤，中性至微碱性土壤均可适应","position":"前景/地被","care":"喜温暖湿润环境，耐45℃高温，不耐积水、高温高湿不通风环境；枝条落地生根，自播能力强，耐修剪，病虫害极少","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":48,"name":"大花六道木","cat":"灌木","tags":["灌木"],"periodText":"花期初夏至仲秋（6-9月），红色花萼宿存至冬季；果期秋季","flower":[6,7,8,9],"fruit":[],"flowerNote":"6-9月开花，红色花萼宿存至冬季仍有观赏性","light":"喜充足阳光，也耐半阴","soil":"喜酸性至中性土壤，耐瘠薄","position":"中景/骨架","care":"适应性强，耐干旱、瘠薄，萌蘖力、萌芽力强，可反复修剪；忌积水、湿热环境","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":49,"name":"千鸟花","cat":"草花","tags":["草花"],"periodText":"花期5-9月；果期8-10月","flower":[5,6,7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃、排水良好的土壤，中性至微碱性均可","position":"中景/前景","care":"喜温暖湿润气候，耐寒、耐旱，忌积水；生长适温15-25℃，花后及时修剪可二次开花","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":50,"name":"花叶锦带","cat":"灌木","tags":["灌木"],"periodText":"花期4-5月；果期6-7月","flower":[4,5],"fruit":[6,7],"flowerNote":"","light":"喜明亮散射光，耐半阴，忌强光直射","soil":"喜疏松透气、肥沃、排水良好的土壤，中性至微酸性均可","position":"中景","care":"耐旱怕积水，浇水见干见湿；生长适温15-30℃，耐寒性强（可耐-30℃）；花后及时修剪残花，生长期定期施肥","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":51,"name":"丁香花","cat":"灌木/小乔木","tags":["灌木","乔木"],"periodText":"花期4-5月；果期6-10月","flower":[4,5],"fruit":[6,7,8,9,10],"flowerNote":"","light":"喜充足阳光，稍耐半阴，阴处开花稀少","soil":"喜排水良好、疏松的中性土壤，忌酸性土","position":"骨架/中景","care":"喜温暖湿润环境，耐寒、耐旱、耐瘠薄，忌积水、湿热；浇水见干见湿，花后施复合肥，冬季施基肥","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":52,"name":"萱草花（自由女神）","cat":"草花","tags":["草花"],"periodText":"花期6-7月（部分品种5-8月）；果期8-9月","flower":[6,7],"fruit":[8,9],"flowerNote":"主花期6-7月，部分品种5-8月","light":"喜充足阳光，稍耐半阴","soil":"不择土壤，以富含腐殖质、排水良好的湿润土壤为佳，中性至微酸性均可","position":"中景/前景","care":"适应性强，耐寒、耐旱、耐贫瘠、耐积水；生长适温15-25℃，生长期保持土壤湿润，花后及时修剪残花","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":53,"name":"使君子","cat":"灌木","tags":["灌木"],"periodText":"花期5-11月；果期6-12月","flower":[5,6,7,8,9,10,11],"fruit":[6,7,8,9,10,11,12],"flowerNote":"","light":"喜充足阳光，稍耐半阴","soil":"喜排水良好的肥沃湿润地，砂壤土或黏重土均宜，中性至微酸性均可","position":"骨架/中景","care":"喜温暖湿润气候，较耐寒冷，不耐干旱，忌渍水；生长期需充足水分，花后及时修剪，冬季施基肥","adapt":"多年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生","plant":[3,4],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":54,"name":"洋水仙（地毯）","cat":"种球","tags":["球根"],"periodText":"花期3-4月；果期5-6月","flower":[3,4],"fruit":[5,6],"flowerNote":"","light":"喜充足阳光，也耐半阴","soil":"喜肥沃、疏松、排水良好、富含腐殖质的微酸性至微碱性砂质土壤","position":"前景/地被","care":"喜冷凉环境，生长适温10-15℃，忌高温多湿；生长期见干见湿，花后及时剪除花葶，做好水肥管理，夏季休眠期保持干燥","adapt":"多年生（常作一年生栽培）","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"多年生（常作一年生栽培）","plant":[10,11],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":55,"name":"蓝亚麻","cat":"草花","tags":["草花"],"periodText":"花期5-7月，果期7-8月","flower":[5,6,7],"fruit":[7,8],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松排水良好的中性至微碱性土壤","position":"前景/中景","care":"耐寒耐旱，忌积水闷热，生长期保持土壤湿润，花后及时修剪可促二次开花，可自播繁殖","adapt":"多年生，耐寒-20℃，大悟可露地越冬，夏季需排水良好","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":56,"name":"金鸡菊","cat":"草花","tags":["草花"],"periodText":"花期5-9月，果期8-10月","flower":[5,6,7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"不择土壤，耐贫瘠，宜中性至微碱性土壤","position":"前景/中景","care":"耐寒耐热耐旱，忌积水，生长期保持土壤湿润，花后及时修剪可二次开花，自播能力强","adapt":"多年生，耐寒-15℃，大悟气候完全适配，管理粗放","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":57,"name":"白晶菊","cat":"草花","tags":["草花"],"periodText":"花期2-5月（早春至初夏），果期5-6月","flower":[2,3,4,5],"fruit":[5,6],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的中性至微酸性土壤","position":"前景/地被","care":"喜凉爽湿润，耐轻霜，忌高温高湿，秋播为主，花后及时剪残花可延长花期","adapt":"一二年生，耐寒-5℃，大悟秋播冬春开花，夏季枯亡","adaptLevel":"ok","adaptText":"可种植","hardy":-5,"life":"","plant":[9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":58,"name":"美女樱","cat":"草花","tags":["草花"],"periodText":"花期4-10月，果期6-11月","flower":[4,5,6,7,8,9,10],"fruit":[6,7,8,9,10,11],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"不择土壤，宜疏松肥沃的中性土壤","position":"前景/中景","care":"喜温暖湿润，耐高温，忌积水，生长期水肥充足，花后及时修剪可连续开花，可垂吊","adapt":"多年生常作一二年生栽培，耐寒-5℃，大悟冬季需简单防护或秋播更新","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":59,"name":"柳叶马鞭草","cat":"草花","tags":["草花"],"periodText":"花期6-9月，果期8-10月","flower":[6,7,8,9],"fruit":[8,9,10],"flowerNote":"","light":"喜充足阳光","soil":"不择土壤，宜排水良好的中性土壤","position":"中景/背景","care":"耐热耐旱，忌积水，植株轻盈通透，生长期适量水肥，可自播繁殖","adapt":"多年生，耐寒-8℃，大悟可露地越冬或自播更新","adaptLevel":"suit","adaptText":"完全适合","hardy":-8,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":60,"name":"大丽花","cat":"种球（块根）","tags":["球根"],"periodText":"花期6-10月，果期9-11月","flower":[6,7,8,9,10],"fruit":[9,10,11],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的微酸性至中性土壤","position":"中景/花境","care":"喜凉爽忌酷暑，忌积水，生长期水肥充足，花后及时剪残花，高大品种需立支架","adapt":"多年生块根，耐寒-5℃，大悟冬季需挖起贮藏或覆盖保温","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[3,4],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":61,"name":"蛇鞭菊","cat":"种球","tags":["球根"],"periodText":"花期7-9月，果期9-10月","flower":[7,8,9],"fruit":[9,10],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松肥沃的中性土壤","position":"中景/花境","care":"耐寒耐旱，忌积水，生长期保持土壤湿润，紫色穗状花序挺拔，花后可剪残花","adapt":"多年生球根，耐寒-20℃，大悟可露地越冬","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":62,"name":"郁金香","cat":"种球","tags":["球根"],"periodText":"花期3-4月，果期5月","flower":[3,4],"fruit":[5],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松肥沃的中性至微碱性土壤","position":"前景/中景","care":"秋植球根，需冬季低温春化，生长期见干见湿，花后剪除花葶保留叶片养球","adapt":"多年生常作一年生栽培，大悟冬季低温满足春化，宜11月种植","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"","plant":[10,11],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":63,"name":"原生郁金香","cat":"种球","tags":["球根"],"periodText":"花期3-4月，果期5月","flower":[3,4],"fruit":[5],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松排水良好的中性至微碱性土壤","position":"前景/中景","care":"原生种球根，耐寒耐旱性显著强于园艺郁金香，可多年复花；生长期见干见湿，花后留叶养球，夏季休眠期保持干燥","adapt":"多年生球根，耐寒-20℃，大悟可露地越冬且复花性强，宜11月种植","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[10,11],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":64,"name":"葡萄风信子","cat":"种球","tags":["球根"],"periodText":"花期3-4月，果期5月","flower":[3,4],"fruit":[5],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的中性至微碱性土壤","position":"前景/中景","care":"秋植球根，需低温春化，生长期见干见湿，花后剪花葶留叶养球，亦可水培观赏","adapt":"多年生常作一年生栽培，大悟秋植合适","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"","plant":[10,11],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":65,"name":"玉簪","cat":"草本（观叶）","tags":["观叶"],"periodText":"花期6-8月，果期8-9月","flower":[6,7,8],"fruit":[8,9],"flowerNote":"","light":"喜半阴，忌烈日暴晒","soil":"喜疏松肥沃的微酸性至中性土壤","position":"中景/耐阴花境","care":"耐寒喜湿，忌积水，叶色品种丰富，生长期保持土壤湿润，花后剪除花葶","adapt":"多年生宿根，耐寒-20℃，大悟林下半阴花境首选","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蜗牛蛞蝓","灰霉病"]},{"id":66,"name":"落新妇","cat":"草本","tags":["草花"],"periodText":"花期6-8月，果期8-9月","flower":[6,7,8],"fruit":[8,9],"flowerNote":"","light":"喜半阴，忌强光直射","soil":"喜疏松肥沃的微酸性湿润土壤","position":"中景/耐阴花境","care":"喜湿润忌干旱，生长期保持土壤湿润，羽状花序如烟似雾，花后可留序观赏","adapt":"多年生宿根，耐寒-20℃，大悟耐阴湿润花境优选","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蜗牛蛞蝓","灰霉病"]},{"id":67,"name":"耧斗菜","cat":"草本","tags":["草花"],"periodText":"花期4-6月，果期6-7月","flower":[4,5,6],"fruit":[6,7],"flowerNote":"","light":"喜半阴，夏季忌暴晒","soil":"喜疏松肥沃的中性至微酸性土壤","position":"中景/花境","care":"耐寒性强，忌高温高湿，生长期保持湿润，花后修剪促新芽，可自播繁衍","adapt":"多年生宿根，耐寒-25℃，大悟春季花境适合","adaptLevel":"suit","adaptText":"完全适合","hardy":-25,"life":"","plant":[9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":68,"name":"矾根","cat":"草本（观叶）","tags":["观叶"],"periodText":"花期4-6月，果期6-7月","flower":[4,5,6],"fruit":[6,7],"flowerNote":"","light":"喜半阴，耐全阴","soil":"喜疏松排水良好的微酸性土壤","position":"前景/地被","care":"耐寒，忌积水与高温暴晒，叶色四季绚丽，生长期适量水肥，是花境调色主力","adapt":"多年生常绿宿根，耐寒-25℃，大悟耐阴地被优选","adaptLevel":"suit","adaptText":"完全适合","hardy":-25,"life":"","plant":[3,4,9,10],"pests":["蜗牛蛞蝓","灰霉病"]},{"id":69,"name":"铁筷子","cat":"草本（常绿）","tags":["草花"],"periodText":"花期12月至次年4月，果期5月","flower":[12,1,2,3,4],"fruit":[5],"flowerNote":"","light":"喜半阴环境","soil":"喜疏松肥沃的微酸性至中性土壤","position":"中景/耐阴花境","care":"极耐寒，冬季至早春开花，填补花境冬季空档，忌积水，夏季需遮阴通风","adapt":"多年生常绿宿根，耐寒-15℃，大悟冬春花境稀缺花期","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[9,10],"pests":["蜗牛蛞蝓","灰霉病"]},{"id":70,"name":"毛地黄","cat":"草花","tags":["草花"],"periodText":"花期5-6月，果期7-8月","flower":[5,6],"fruit":[7,8],"flowerNote":"","light":"喜半阴，耐全日照","soil":"喜疏松肥沃的中性至微酸性土壤","position":"中景/背景","care":"需秋播经冬季低温春化，植株高大挺拔，生长期水肥充足，花后可收种自播","adapt":"二年生，耐寒-15℃，大悟秋播翌年春末开花","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":71,"name":"大花飞燕草","cat":"草花","tags":["草花"],"periodText":"花期5-7月，果期7-8月","flower":[5,6,7],"fruit":[7,8],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的中性至微碱性土壤","position":"中景/背景","care":"喜凉爽忌酷暑，需低温春化，生长期水肥充足，花后修剪秋季可复花，高大品种需立支架","adapt":"多年生常作二年生，耐寒-20℃，大悟春秋两季表现佳","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":72,"name":"羽扇豆","cat":"草花","tags":["草花"],"periodText":"花期5-6月，果期7月","flower":[5,6],"fruit":[7],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松透气的微酸性砂质土壤","position":"中景/背景","care":"喜凉爽，忌高温高湿，大悟宜秋播避夏，注意排水防烂根，花后及时收种","adapt":"多年生常作二年生，耐寒-15℃，大悟秋播春季观花","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":73,"name":"德国鸢尾","cat":"宿根","tags":["宿根","草花"],"periodText":"花期4-5月，果期6-7月","flower":[4,5],"fruit":[6,7],"flowerNote":"","light":"喜充足阳光","soil":"喜排水良好的中性至微碱性土壤，忌积水","position":"中景/花境","care":"耐寒耐旱，根茎宜浅栽微露土面，花后剪除花葶，雨季注意排水防烂根","adapt":"多年生宿根，耐寒-20℃，大悟花境骨干植物","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[8,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":74,"name":"花菖蒲","cat":"宿根","tags":["宿根","草花"],"periodText":"花期5-6月，果期7-8月","flower":[5,6],"fruit":[7,8],"flowerNote":"","light":"喜充足阳光","soil":"喜湿润的微酸性土壤，可水边种植","position":"中景/水景花境","care":"耐湿耐寒，生长期保持湿润或5厘米以内浅水，花后剪残花，冬季清理枯叶","adapt":"多年生宿根，耐寒-25℃，大悟池塘水景搭配佳选","adaptLevel":"suit","adaptText":"完全适合","hardy":-25,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":75,"name":"常夏石竹","cat":"草花/地被","tags":["草花","地被"],"periodText":"花期5-10月，果期6-11月","flower":[5,6,7,8,9,10],"fruit":[6,7,8,9,10,11],"flowerNote":"","light":"喜充足阳光","soil":"喜排水良好的中性至微碱性土壤","position":"前景/地被","care":"耐寒耐旱耐贫瘠，忌积水，株型低矮致密，花后修剪可连续开花，四季常绿","adapt":"多年生常绿，耐寒-20℃，大悟前景镶边地被优选","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":76,"name":"角堇","cat":"草花","tags":["草花"],"periodText":"花期10月至次年5月，果期5-6月","flower":[10,11,12,1,2,3,4,5],"fruit":[5,6],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"喜疏松肥沃的中性土壤","position":"前景/中景","care":"喜凉爽耐轻霜，忌高温，秋播冬春观花，花后及时修剪残花可延长花期","adapt":"多年生常作一二年生，耐寒-10℃，大悟冬春花境主力","adaptLevel":"suit","adaptText":"完全适合","hardy":-10,"life":"","plant":[9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":77,"name":"大花美人蕉","cat":"根茎","tags":["球根"],"periodText":"花期6-10月，果期9-11月","flower":[6,7,8,9,10],"fruit":[9,10,11],"flowerNote":"","light":"喜充足阳光","soil":"不择土壤，宜肥沃湿润","position":"中景/背景","care":"喜高温高湿，耐水湿，生长期大水大肥，花后剪残花促新花，冬季剪除地上部分","adapt":"多年生根茎，耐寒-5℃，大悟冬季需覆盖保温或挖起贮藏","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[3,4],"pests":["根腐病/茎腐病（烂根）","细菌性软腐病","蛴螬/地老虎等地下害虫"]},{"id":78,"name":"灌木月季（珊瑚果冻）","cat":"灌木","tags":["灌木"],"periodText":"花期4-11月，可连续开花","flower":[4,5,6,7,8,9,10,11],"fruit":[],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜疏松肥沃的微酸性土壤（pH6-6.5）","position":"中景/花境骨架","care":"喜肥喜水，忌积水，勤剪残花促复花，注意黑斑病和蚜虫防治，冬季重剪施基肥","adapt":"多年生木本灌木，耐寒-15℃，大悟气候适合，花园主角","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["黑斑病","白粉病","蚜虫","红蜘蛛（叶螨）","刺蛾/毛虫（青虫）"]},{"id":79,"name":"灌木月季（真宙）","cat":"灌木","tags":["灌木"],"periodText":"花期4-11月，多季连续开花","flower":[4,5,6,7,8,9,10,11],"fruit":[],"flowerNote":"","light":"喜充足阳光，每日需6小时以上光照","soil":"喜疏松肥沃的微酸性土壤（pH6-6.5）","position":"中景/花境骨架","care":"日和系列浓香大花，耐热性好；喜肥喜水忌积水，勤剪残花促复花，注意黑斑病和红蜘蛛防治，冬季重剪施基肥","adapt":"多年生木本灌木，耐寒-15℃，大悟气候适合，花园主角","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["黑斑病","白粉病","蚜虫","红蜘蛛（叶螨）","刺蛾/毛虫（青虫）"]},{"id":80,"name":"灌木月季（瑞典女王）","cat":"灌木","tags":["灌木"],"periodText":"花期4-6月、9-10月，春秋两季集中开放","flower":[4,5,6,9,10],"fruit":[],"flowerNote":"春秋两季集中开放","light":"喜充足阳光","soil":"喜疏松肥沃的微酸性土壤","position":"中景/花境骨架","care":"奥斯汀灌木月季，株型直立，粉色杯状花；花后及时修剪控制高度促秋花，注意白粉病防治，冬季重剪","adapt":"多年生木本灌木，耐寒-15℃，大悟气候适合","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["黑斑病","白粉病","蚜虫","红蜘蛛（叶螨）","刺蛾/毛虫（青虫）"]},{"id":81,"name":"藤本月季（安吉拉）","cat":"藤本/灌木","tags":["藤本","灌木"],"periodText":"花期4-6月为主，部分品种秋季复花","flower":[4,5,6],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松肥沃的微酸性土壤","position":"花墙/拱门/骨架","care":"生长旺盛，需牵引绑扎造型，耐肥，冬季修剪整枝，注意白粉病黑斑病防治","adapt":"多年生木本藤本，耐寒-15℃，大悟花墙花架首选","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["黑斑病","白粉病","蚜虫","红蜘蛛（叶螨）","刺蛾/毛虫（青虫）"]},{"id":82,"name":"藤本月季（大游行）","cat":"藤本/灌木","tags":["藤本","灌木"],"periodText":"花期4-6月为主，秋季零星复花","flower":[4,5,6],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松肥沃的微酸性土壤","position":"花墙/拱门/骨架","care":"经典藤本，生长迅猛一年可长2-3米，需重牵引绑扎，春季爆花；冬季整枝修剪，注意黑斑病防治","adapt":"多年生木本藤本，耐寒-15℃，大悟花墙花架首选","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[2,3,11,12],"pests":["黑斑病","白粉病","蚜虫","红蜘蛛（叶螨）","刺蛾/毛虫（青虫）"]},{"id":83,"name":"藤本月季（佛罗伦蒂娜）","cat":"藤本/灌木","tags":["藤本","灌木"],"periodText":"花期5-6月，单季爆花","flower":[5,6],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松肥沃的微酸性土壤","position":"花墙/拱门/骨架","care":"德国藤本月季，红色重瓣，抗病性强；单季开花，花后只轻剪，冬季牵引整枝","adapt":"多年生木本藤本，耐寒-20℃，大悟气候适合","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["黑斑病","白粉病","蚜虫","红蜘蛛（叶螨）","刺蛾/毛虫（青虫）"]},{"id":84,"name":"木槿","cat":"灌木","tags":["灌木"],"periodText":"花期6-9月，果期9-10月","flower":[6,7,8,9],"fruit":[9,10],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"不择土壤，耐贫瘠","position":"骨架/花境背景","care":"耐寒耐旱耐修剪，忌积水，花期长夏季盛放，花后轻剪，冬季可重剪整形","adapt":"多年生落叶灌木，耐寒-20℃，大悟乡土树种完全适配","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":85,"name":"细茎针茅","cat":"观赏草","tags":["观赏草"],"periodText":"观赏期5-10月，花序6-8月","flower":[5,6,7,8,9,10],"fruit":[],"flowerNote":"全年观赏期5-10月，花序6-8月","light":"喜充足阳光","soil":"喜排水良好的中性至微碱性土壤，耐贫瘠","position":"前景/中景/点缀","care":"极耐旱，忌积水，细软金叶随风摇曳，可为花境镶边柔化线条，早春梳理老叶","adapt":"多年生，耐寒-20℃，大悟花境镶边配材","adaptLevel":"suit","adaptText":"完全适合","hardy":-20,"life":"","plant":[3,4,9,10],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":86,"name":"蒲苇","cat":"观赏草","tags":["观赏草"],"periodText":"花期（银白花穗）9-10月，果期10-11月","flower":[9,10],"fruit":[10,11],"flowerNote":"银白花穗9-10月，冬季宿存亦佳","light":"喜充足阳光","soil":"不择土壤，耐贫瘠耐旱","position":"背景/骨架","care":"植株高大可达2-3米，耐寒耐旱，早春剪除老叶，忌积水，适合花境背景屏障","adapt":"多年生丛生，耐寒-15℃，大悟花境背景骨架","adaptLevel":"suit","adaptText":"完全适合","hardy":-15,"life":"","plant":[3,4,10,11],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":87,"name":"迷迭香","cat":"香草/灌木","tags":["香草","灌木"],"periodText":"花期3-5月，果期7月","flower":[3,4,5],"fruit":[7],"flowerNote":"","light":"喜充足阳光","soil":"喜排水良好的中性至微碱性土壤，忌黏重土","position":"中景/花境/可食用","care":"耐旱怕涝，大悟夏季高湿需抬高种植、通风良好，控制浇水，枝叶可作香料","adapt":"多年生常绿亚灌木，耐寒-12℃，大悟可露地越冬需避风口","adaptLevel":"suit","adaptText":"完全适合","hardy":-12,"life":"","plant":[3,4,10],"pests":["蚜虫","白粉虱"]},{"id":88,"name":"银叶金合欢","cat":"乔木/灌木","tags":["乔木","灌木"],"periodText":"花期2-4月，金黄球花","flower":[2,3,4],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"喜疏松排水良好的微酸性土壤","position":"骨架/中景","care":"银灰色羽状叶极具观赏性，早春满树金黄球花；怕湿热积水，需抬高种植、土壤掺粗砂，花后轻剪整形","adapt":"需冬季防寒，耐寒-5℃，大悟幼树需包裹防寒、避风向阳种植，风口不宜","adaptLevel":"protect","adaptText":"需冬季防护","hardy":-5,"life":"","plant":[2,3,11,12],"pests":["蚜虫","红蜘蛛（叶螨）","白粉病","灰霉病"]},{"id":89,"name":"飘香藤","cat":"藤本","tags":["藤本"],"periodText":"花期5-10月","flower":[5,6,7,8,9,10],"fruit":[],"flowerNote":"","light":"喜充足阳光，每日6小时以上光照","soil":"喜疏松肥沃的微酸性至中性土壤","position":"攀援/中景","care":"双腺藤，花期长花量大，喜热喜肥；生长期充足水肥，花后轻剪，及时牵引上架","adapt":"需盆栽入室越冬，耐寒5℃左右，大悟冬季必须入室，10月底搬入","adaptLevel":"indoor","adaptText":"需入室越冬","hardy":5,"life":"","plant":[4,5,10],"pests":["白粉病","蚜虫","红蜘蛛（叶螨）"]},{"id":90,"name":"薄荷","cat":"香草","tags":["香草"],"periodText":"7-9月","flower":[7,8,9],"fruit":[],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"疏松肥沃微酸性至中性","position":"前景/中景","care":"生长强健，蔓延快，建议盆栽。","adapt":"宿根","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"","plant":[3,4,9,10],"pests":["蚜虫","白粉虱"]},{"id":91,"name":"罗勒","cat":"香草","tags":["香草"],"periodText":"7-9月","flower":[7,8,9],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"疏松肥沃中性至微酸性","position":"前景/中景","care":"喜温暖湿润，耐热。","adapt":"一年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"一年生","plant":[4,5],"pests":["蚜虫","白粉虱"]},{"id":92,"name":"紫苏","cat":"香草","tags":["香草"],"periodText":"7-9月","flower":[7,8,9],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"不择土壤","position":"前景/中景","care":"喜温暖湿润，耐热。","adapt":"一年生","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"一年生","plant":[4,5],"pests":["蚜虫","白粉虱"]},{"id":93,"name":"百里香","cat":"香草","tags":["香草"],"periodText":"5-8月","flower":[5,6,7,8],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"排水良好中性至微碱性","position":"前景/中景","care":"耐旱怕涝，大悟夏季高湿需抬高种植。","adapt":"常绿亚灌木","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"常绿亚灌木","plant":[3,4,9,10],"pests":["蚜虫","白粉虱"]},{"id":94,"name":"柠檬香蜂草","cat":"香草","tags":["香草"],"periodText":"6-8月","flower":[6,7,8],"fruit":[],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"疏松肥沃微酸性至中性","position":"前景/中景","care":"喜温暖湿润，耐寒。","adapt":"宿根","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"","plant":[3,4,9,10],"pests":["蚜虫","白粉虱"]},{"id":95,"name":"菲油果","cat":"果树/灌木","tags":["果树","灌木"],"periodText":"5-6月，果期10-11月","flower":[5,6],"fruit":[10,11],"flowerNote":"","light":"喜充足阳光，耐半阴","soil":"微酸性至中性","position":"中景/骨架","care":"喜温暖湿润，耐旱；忌积水。","adapt":"常绿","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"常绿","plant":[3,4,10,11],"pests":["蚜虫","天牛","刺蛾/毛虫（青虫）","炭疽病","根结线虫"]},{"id":96,"name":"薰衣草","cat":"香草","tags":["香草"],"periodText":"6-8月","flower":[6,7,8],"fruit":[],"flowerNote":"","light":"喜充足阳光","soil":"排水良好中性至微碱性","position":"前景/中景","care":"耐旱怕涝，南方花器喜雨季排水良好。","adapt":"亚灌木","adaptLevel":"ok","adaptText":"可种植","hardy":null,"life":"","plant":[3,4,9,10],"pests":["蚜虫","白粉虱"]}],"excelPhotos":{"蓝雪花":"photos/image1.png","三角梅":"photos/image2.png","花叶络石":"photos/image3.png","绣线菊":"photos/image4.png","柠檬树":"photos/image5.png","翠芦莉":"photos/image6.png","剑兰":"photos/image7.png","百子莲":"photos/image8.png","蓝冰柏":"photos/image9.png","风雨兰":"photos/image10.png","鼠尾草":"photos/image11.png","松果菊":"photos/image12.png","百合":"photos/image13.png","狐尾天门冬":"photos/image14.png","向日葵（光辉岁月）":"photos/image15.png","鸡爪槭":"photos/image16.png","铁线莲":"photos/image17.png","长春花":"photos/image18.png","木绣球":"photos/image19.png","朱顶红":"photos/image20.png","黄木香":"photos/image21.png","紫薇花":"photos/image22.png","五色梅":"photos/image23.png","喷雪花":"photos/image24.png","桑蓓斯":"photos/image25.png","穗花牡荆":"photos/image26.png","旱金莲":"photos/image27.png","重瓣麦李":"photos/image28.png","女贞":"photos/image29.png","风车茉莉":"photos/image30.png","脆皮金桔":"photos/image31.png","无花果":"photos/image32.png","西府海棠":"photos/image33.png","佛甲草":"photos/image34.png","过路黄":"photos/image35.png","酢浆草":"photos/image36.png","八重小手鞠（重瓣/凌叶绣线菊":"photos/image37.png","墨西哥飞蓬":"photos/image38.png","大花六道木":"photos/image39.png","千鸟花":"photos/image40.png","花叶锦带":"photos/image41.png","丁香花":"photos/image42.png","萱草花（自由女神）":"photos/image43.png","使君子":"photos/image44.png","洋水仙（地毯）":"photos/image45.png","蓝亚麻":"photos/image46.png","金鸡菊":"photos/image47.png","白晶菊":"photos/image48.png","美女樱":"photos/image49.png","柳叶马鞭草":"photos/image50.png","大丽花":"photos/image51.png","蛇鞭菊":"photos/image52.png","郁金香":"photos/image53.png","原生郁金香":"photos/image54.png","葡萄风信子":"photos/image55.png","玉簪":"photos/image56.png","落新妇":"photos/image57.png","耧斗菜":"photos/image58.png","矾根":"photos/image59.png","铁筷子":"photos/image60.png","毛地黄":"photos/image61.png","大花飞燕草":"photos/image62.png","羽扇豆":"photos/image63.png","德国鸢尾":"photos/image64.png","花菖蒲":"photos/image65.png","常夏石竹":"photos/image66.png","角堇":"photos/image67.png","大花美人蕉":"photos/image68.png","灌木月季（珊瑚果冻）":"photos/image69.png","灌木月季（真宙）":"photos/image70.png","灌木月季（瑞典女王）":"photos/image71.png","藤本月季（安吉拉）":"photos/image72.png","藤本月季（大游行）":"photos/image73.png","藤本月季（佛罗伦蒂娜）":"photos/image74.png","木槿":"photos/image75.png","细茎针茅":"photos/image76.png","蒲苇":"photos/image77.png","迷迭香":"photos/image78.png","银叶金合欢":"photos/image79.png","飘香藤":"photos/image80.png"},"pests":[{"name":"蚜虫","type":"虫害","months":[3,4,5,6,9,10],"season":"春秋两季高发（3-6月、9-10月），早春第一代最关键","symptom":"聚集在嫩梢、花苞、叶背吸食汁液，叶片卷曲皱缩，分泌蜜露诱发煤污病，蚂蚁频繁出没也是信号","susceptible":"月季、菊花、鼠尾草、铁线莲嫩芽、果树新梢、几乎所有草花幼苗","drugs":[{"name":"10%吡虫啉可湿性粉剂","usage":"1500倍液喷雾，7-10天一次，连用2次"},{"name":"25%噻虫嗪水分散粒剂","usage":"3000-5000倍液喷雾，持效期长"},{"name":"4.5%高效氯氟氰菊酯","usage":"1500倍液，虫量大时用，花期慎用（伤蜜蜂）"}],"organic":["苦楝油/印楝素 500倍液，3天一次连喷3次","肥皂水（中性洗洁精1:500）喷嫩梢，24小时后清水冲洗","黄色粘虫板悬挂于植株上方20厘米","人工抹除少量蚜虫，保护瓢虫、草蛉等天敌"],"prevention":["早春萌芽期挂黄板，防患于未然","避免偏施氮肥，徒长嫩梢最招蚜虫","控制种植密度，保持通风","冬季清园喷石硫合剂杀灭越冬卵"]},{"name":"红蜘蛛（叶螨）","type":"虫害","months":[5,6,7,8,9],"season":"5-9月高温干旱期爆发，7-8月伏旱最烈","symptom":"叶面出现密集黄白色针尖小点，叶背可见细密蛛网和红色小点移动，严重时叶片灰白脱落","susceptible":"月季、柠檬/橙子等柑橘类、鼠尾草、薰衣草、迷迭香、朱顶红","drugs":[{"name":"43%联苯肼酯悬浮剂（爱卡螨）","usage":"3000倍液，重点喷叶背，10天一次连用2次"},{"name":"1.8%阿维菌素乳油","usage":"1500-2000倍液喷雾，成螨若螨皆有效"},{"name":"15%哒螨灵乳油","usage":"1500倍液，杀卵效果好，与联苯肼酯轮换使用"}],"organic":["强水流冲洗叶背（早晚进行），物理冲刷效果显著","大蒜浸出液或苦楝油喷雾","释放捕食螨（智利小植绥螨）生物防治","干旱期经常给叶面喷水增湿，红蜘蛛怕湿"],"prevention":["大悟夏季高温干旱期，每周检查一次叶背","避免过度干旱，及时浇水","清除杂草和落叶，减少越冬场所","药剂轮换使用，避免产生抗药性"]},{"name":"白粉虱","type":"虫害","months":[5,6,7,8,9,10],"season":"5-10月，闷热不通风环境最严重","symptom":"碰触植株时飞起一群小白蛾，叶背密布针尖大小白虫及若虫，叶片发黄，分泌蜜露诱发煤污病","susceptible":"鼠尾草、薰衣草、罗勒等香草，菊科草花，温室越冬植物","drugs":[{"name":"25%噻虫嗪","usage":"3000倍液喷雾，10天一次"},{"name":"10%吡虫啉","usage":"1500倍液灌根+喷雾结合，持效长"}],"organic":["黄色粘板大量诱杀成虫","苦楝油喷雾，3-5天一次","早晨低温时轻拍植株让成虫飞起，再喷肥皂水"],"prevention":["保持通风，避免密植","入室越冬的盆栽入室前彻底检查处理，避免带入室内繁殖"]},{"name":"介壳虫","type":"虫害","months":[4,5,6,7,8],"season":"若虫孵化期5-6月为防治窗口，一旦成虫分泌蜡壳极难用药","symptom":"枝干、叶背上褐色/白色小凸起，可剥离，分泌大量蜜露，伴随煤污病黑霉，植株长势衰弱","susceptible":"柠檬、金桔、橙子等柑橘类，女贞，迷迭香，室内越冬盆栽","drugs":[{"name":"22.4%螺虫乙酯悬浮剂（亩旺特）","usage":"1500-2000倍液，内吸传导，对若虫成虫都有效"},{"name":"25%噻嗪酮可湿性粉剂","usage":"1000-1500倍液，若虫期使用最佳"}],"organic":["少量时用75%酒精棉签直接擦拭虫体","软毛刷蘸肥皂水刷洗枝干","剪除虫害严重的枝条并销毁"],"prevention":["冬季清园时检查枝干，刮除越冬成虫","5月中下旬若虫孵化期（未分泌蜡壳前）是用药黄金期","保持通风透光，及时修剪内膛枝"]},{"name":"蓟马","type":"虫害","months":[4,5,6,9,10],"season":"春秋干热天气多发，危害花朵为主","symptom":"花瓣出现白色褪色斑纹、扭曲卷缩，嫩叶畸形皱缩，叶背有黑色点状排泄物，花瓣内可见细长小虫爬行","susceptible":"月季花朵、鼠尾草、美女樱、角堇花瓣、大丽花","drugs":[{"name":"60克/升乙基多杀菌素悬浮剂（艾绿士）","usage":"1500倍液，对花内蓟马效果好"},{"name":"多杀霉素","usage":"1000倍液，生物农药较安全"}],"organic":["蓝色粘板诱杀（蓟马趋蓝）","傍晚喷施（蓟马昼伏夜出）苦楝油或肥皂水","受害花朵及时剪除深埋"],"prevention":["花苞期提前预防性喷药","清除田间杂草，减少中间寄主","避免过度干旱"]},{"name":"刺蛾/毛虫（青虫）","type":"虫害","months":[5,6,7,8,9],"season":"5-9月食叶期，6-8月幼虫危害最重","symptom":"叶片出现孔洞、缺刻，甚至整叶吃光只留叶脉，地面有黑色颗粒状虫粪，刺蛾幼虫（洋辣子）有毒毛勿徒手抓","susceptible":"月季、桃树、樱桃、紫薇、木槿、菊花、向日葵","drugs":[{"name":"32000IU/毫克苏云金杆菌（Bt）可湿性粉剂","usage":"500-800倍液，生物农药，对环境友好"},{"name":"5%甲维盐水分散粒剂","usage":"5000倍液，高效低毒"},{"name":"4.5%高效氯氟氰菊酯","usage":"1500倍液，虫量大时用"}],"organic":["Bt生物制剂，对蝶类幼虫有专一性","傍晚人工捕捉（刺蛾用镊子）","冬春季翻土，消灭土中越冬虫茧","悬挂杀虫灯诱杀成虫"],"prevention":["早春检查枝干上越冬茧并刮除","保护鸟类、螳螂等天敌","少量时人工捉除即可"]},{"name":"蜗牛蛞蝓","type":"虫害","months":[4,5,6,7,8,9,10],"season":"4-10月，梅雨季6-7月和秋雨期最猖獗，夜間活动","symptom":"叶片、嫩芽被啃食出大孔洞和缺刻，叶面留下发亮的黏液痕迹，玉簪、落新妇嫩叶一夜可被啃光","susceptible":"玉簪、落新妇、矾根、铁筷子、角堇、各种幼苗","drugs":[{"name":"6%四聚乙醛颗粒剂（螺斯本）","usage":"傍晚撒施于植株周围，每平方米2-3克，避免撒在食用部分"}],"organic":["傍晚或清晨人工捕捉（戴手套）","啤酒陷阱：浅盘倒啤酒埋于土面，诱杀效果显著","植株周围撒碎蛋壳、草木灰或粗砂形成阻隔带","盆栽可用铜条围盆沿，蜗牛遇铜收缩"],"prevention":["清除花坛杂物、砖块、木板等藏身处","梅雨前开始防范，雨后夜间巡查","抬高种植、地膜覆盖减少躲藏空间"]},{"name":"天牛","type":"虫害","months":[5,6,7,8],"season":"成虫6-8月羽化产卵，幼虫终年在树干内蛀食","symptom":"树干基部出现新鲜虫粪和木屑排出，树皮有产卵刻槽（U形伤口），枝条中空易风折，树势逐年衰弱","susceptible":"桃树、樱桃、紫薇、木槿、女贞、柠檬","drugs":[{"name":"铁丝钩杀","usage":"找到最新排粪孔，用铁丝插入钩出或刺死幼虫"},{"name":"塞孔熏杀","usage":"向蛀孔塞入磷化铝片或蘸敌敌畏的棉球，用泥封口"}],"organic":["6-7月晴天中午人工捕捉成虫（多在树干基部）","锤击产卵刻槽，砸死卵和初孵幼虫","树干涂白（生石灰10斤+硫磺1斤+盐半斤+水30斤）防产卵"],"prevention":["冬季涂白树干","保持树势健壮，及时清理受害枯枝","6-8月勤查树干，发现刻槽立即处理"]},{"name":"蛴螬/地老虎等地下害虫","type":"虫害","months":[4,5,6,8,9,10],"season":"春秋两季地温15-25℃时活跃，夏季和冬季深入土层","symptom":"幼苗一夜之间从根部被咬断倒伏，植株不明原因萎蔫，拔起可见根部被啃食，土壤中有乳白色C形肉虫（蛴螬，金龟子幼虫）","susceptible":"球根类（百合、朱顶红、大丽花）、幼苗期草花、新栽果树","drugs":[{"name":"5%辛硫磷颗粒剂","usage":"翻土时每亩撒施3-5公斤混入土中，种植前处理土壤"},{"name":"浇灌48%毒死蜱","usage":"1000倍液浇灌根部（成株期急救）"}],"organic":["种植前翻土暴晒，捡拾土中幼虫","糖醋液或杀虫灯诱杀金龟子成虫，减少产卵","盆栽用干净的腐殖土/营养土，避免带入未腐熟有机肥","茶籽饼粉撒施后浇水"],"prevention":["有机肥必须充分腐熟再施用","新苗定植后连续几天早晨检查倒伏苗，挖土捕杀地老虎","秋季深翻土地冻死部分越冬幼虫"]},{"name":"潜叶蝇","type":"虫害","months":[4,5,6,9,10],"season":"春秋温和季节多发","symptom":"叶片上出现蜿蜒曲折的白色蛇形隧道（幼虫在叶片夹层内潜食），严重时叶片大面积枯白","susceptible":"旱金莲、紫苏、罗勒、菊科草花、豌豆类","drugs":[{"name":"75%灭蝇胺可湿性粉剂","usage":"3000倍液喷雾，专杀潜叶蝇"},{"name":"1.8%阿维菌素","usage":"1500倍液，杀灭幼虫"}],"organic":["黄板诱杀成虫","摘除受害叶片并销毁（幼虫在叶内）","防虫网阻隔成虫产卵"],"prevention":["发现少量隧道叶立即摘除","周边杂草及时清理","春秋季提前挂黄板"]},{"name":"食心虫（桃小/梨小）","type":"虫害","months":[5,6,7,8],"season":"5-7月成虫产卵于幼果，幼虫蛀果危害","symptom":"果实表面有小蛀孔，孔口有虫粪和胶状物，果内被蛀成隧道，未熟先黄脱落","susceptible":"桃树、梨、李（蜂糖李）、石榴","drugs":[{"name":"4.5%高效氯氟氰菊酯","usage":"1500倍液，5月下旬起每15天一次，采前20天停用"},{"name":"性诱剂迷向丝","usage":"挂于树冠，干扰交配，物理防治无残留"}],"organic":["性诱捕器（诱芯+粘板）监测并诱杀雄蛾","及时捡拾落果深埋，切断虫源","果实套袋（6月初完成）"],"prevention":["冬季刮树皮清园","5月下旬起挂性诱剂监测，蛾峰后5-7天打药","及时采收，落果不留在园内"]},{"name":"根结线虫","type":"虫害","months":[6,7,8,9],"season":"夏季土温高时活跃，连作土壤积累多","symptom":"植株矮小黄化、长势弱似缺肥，拔起可见根部有大小不等的瘤状根结（不是根瘤菌的圆润根瘤），须根减少","susceptible":"菊花、鼠尾草、生菜类、连作地块的草花","drugs":[{"name":"1.8%阿维菌素","usage":"1000倍液灌根，每株200-300毫升"},{"name":"淡紫拟青霉（生物菌剂）","usage":"按说明沟施或穴施，长效安全"}],"organic":["与万寿菊轮作或间作（其根系分泌物抑制线虫）","夏季休耕时大水漫灌+覆膜闷土15天","病株连根拔除销毁，土壤不能再用"],"prevention":["避免同一地块连年种菊科植物","引入新土前检查来源","增施有机肥培育健康土壤生态"]},{"name":"白粉病","type":"病害","months":[4,5,6,9,10],"season":"4-6月和9-10月昼夜温差大、通风差时高发，大悟春季尤其常见","symptom":"叶片、嫩梢、花苞表面覆盖白色粉末状霉层，像撒了面粉，后期叶片扭曲卷缩发黄枯萎","susceptible":"月季、黄木香、耧斗菜、毛地黄、大花飞燕草、紫菀类、瓜叶类","drugs":[{"name":"25%乙嘧酚磺酸酯微乳剂","usage":"1000倍液，发病初期使用效果好"},{"name":"40%苯醚甲环唑悬浮剂","usage":"3000倍液，治疗性杀菌，10天一次"},{"name":"75%十三吗啉","usage":"1000倍液，严重时轮换使用"}],"organic":["小苏打1:500水溶液+几滴洗洁精，每周喷一次（轻度有效）","牛奶1:9兑水喷雾（研究证实对白粉病有效）","及时剪除发病枝叶并销毁"],"prevention":["通风透光是第一位，及时疏剪过密枝条","控制氮肥，增施磷钾肥","浇水浇根部，避免淋湿叶片","月季等易感植物早春预防性喷药"]},{"name":"黑斑病","type":"病害","months":[5,6,7,8,9],"season":"5月起发病，6-7月梅雨季大爆发，是月季头号病害","symptom":"叶片出现黑色/黑紫色放射状圆斑，周围黄化，叶片自下而上大量脱落，严重时光杆（月季扫帚状）","susceptible":"月季（真宙、瑞典女王等）、黄木香、木绣球","drugs":[{"name":"80%代森锰锌可湿性粉剂","usage":"600-800倍液，雨季前每10-15天预防性喷施"},{"name":"40%苯醚甲环唑","usage":"3000倍液，发病后治疗，与代森锰锌轮换"},{"name":"10%氟硅唑（福星）","usage":"2000-3000倍液，病情重时用"}],"organic":["发现病叶立即摘除（连叶柄），装袋带出园区销毁","秋季彻底清扫落叶（病菌越冬场所）","极端严重时冬季重剪+换表层土"],"prevention":["梅雨季节是关键：雨前喷保护性杀菌剂，雨后补喷","浇水不淋叶，清晨浇水使叶片快速干燥","叶片保留上部通风层，下部叶片及时清除","选择抗病品种，种植位置保证全日照"]},{"name":"灰霉病","type":"病害","months":[3,4,5,10,11],"season":"3-5月低温高湿和10-11月秋雨期，气温15-23℃+高湿最易发","symptom":"花瓣、嫩叶出现水渍状褐斑，很快长出灰褐色霉层，花苞整个腐烂下垂，枯萎花朵上灰霉尤其明显","susceptible":"月季花朵、角堇、菊科、玉簪、落新妇、铁筷子、大丽花","drugs":[{"name":"40%嘧霉胺悬浮剂","usage":"800-1000倍液喷雾"},{"name":"50%腐霉利可湿性粉剂","usage":"1000-1500倍液，与嘧霉胺轮换"}],"organic":["及时剪除残花败叶（最主要的传染源）","加强通风，降低湿度","病组织远离园区销毁"],"prevention":["花后及时剪残花，绝不让败花留在植株上","避免傍晚淋浇，夜间叶面不能积水","连续阴雨天前预防性喷药","种植间距拉开"]},{"name":"炭疽病","type":"病害","months":[6,7,8,9],"season":"6-9月高温高湿，梅雨+伏天阵雨后爆发","symptom":"叶片出现圆形/椭圆形褐色病斑，中央灰白凹陷、有轮纹状小黑点，边缘深褐色，病斑易穿孔；果实上出现凹陷褐斑","susceptible":"柠檬、金桔、橙子、石榴、无花果、女贞、玉簪","drugs":[{"name":"25%咪鲜胺乳油","usage":"1000倍液，10天一次连喷2-3次"},{"name":"10%苯醚甲环唑","usage":"1500倍液，轮换使用"}],"organic":["及时剪除病叶病果并销毁","雨季注意排水，降低小环境湿度"],"prevention":["台风/强降雨后立即补喷保护性杀菌剂","合理修剪保持树冠通风","避免偏施氮肥","冬季清园+石硫合剂"]},{"name":"根腐病/茎腐病（烂根）","type":"病害","months":[6,7,8],"season":"梅雨季和夏季浇水过多时高发，是盆栽和球根的头号杀手","symptom":"植株整体萎蔫但土壤是湿的，叶片发黄脱落，茎基部变褐变软，拔起可闻腐臭味，根系变黑一捏就烂","susceptible":"迷迭香、薰衣草、百里香、大丽花、剑兰、朱顶红、柠檬等所有怕涝植物","drugs":[{"name":"30%甲霜·恶霉灵水剂","usage":"800-1000倍液灌根，每株200毫升，7天一次连用2-3次"},{"name":"70%甲基硫菌灵","usage":"800倍液灌根，通用性广"}],"organic":["立即脱盆，剪掉全部烂根，多菌灵溶液浸根20分钟后换新土重栽","控水，移到通风阴凉处缓苗"],"prevention":["大悟梅雨季必须提前做好排水：抬高苗床、加粗砂改土、花盆垫高","宁干勿湿，浇前摸土","种植穴底部铺排水层（陶粒/碎石）","选择耐湿品种或高位种植"]},{"name":"锈病","type":"病害","months":[4,5,6,9],"season":"春秋凉爽高湿，4-6月为主","symptom":"叶背出现橙黄色/铁锈色粉状脓疱，对应叶面出现黄色斑点，严重时叶片大量枯死","susceptible":"德国鸢尾、花菖蒲、毛地黄、萱草、美人蕉","drugs":[{"name":"15%三唑酮（粉锈宁）可湿性粉剂","usage":"1000-1500倍液，7-10天一次"},{"name":"43%戊唑醇悬浮剂","usage":"3000倍液，效果更强"}],"organic":["发病叶片立即摘除销毁","雨后及时晾叶，避免夜间带水"],"prevention":["避免密植，叶面保持干燥","春秋季易感植物预防性喷保护剂","冬季彻底清理病残体"]},{"name":"霜霉病/疫病","type":"病害","months":[3,4,5,10,11],"season":"早春和晚秋低温高湿（气温10-20℃连续阴雨）","symptom":"叶片正面出现淡黄不规则斑，叶背对应位置有灰紫色霉层，嫩梢扭曲，幼苗成片倒伏猝倒","susceptible":"角堇、白晶菊幼苗、罗勒、紫苏、各种秋播幼苗","drugs":[{"name":"72%霜脲·锰锌可湿性粉剂","usage":"600-800倍液喷雾"},{"name":"68%精甲霜·锰锌（金雷）","usage":"600倍液，苗期猝倒急救"}],"organic":["发病初期拔除病株","控制浇水，加强光照通风"],"prevention":["秋播苗避免低温+高湿组合，宁干勿湿","育苗土消毒（暴晒或多菌灵拌土）","连续阴雨天注意通风除湿"]},{"name":"煤污病","type":"病害","months":[5,6,7,8,9],"season":"伴随蚜虫、介壳虫发生，虫害重则煤污重","symptom":"叶片、枝条表面覆盖黑色煤灰状霉层，可擦除，阻碍光合作用，植株长势衰弱、观赏性尽失","susceptible":"柠檬、金桔、橙子、女贞、紫薇（都是介壳虫/蚜虫高发植物）","drugs":[{"name":"治本先治虫","usage":"用吡虫啉/螺虫乙酯消灭蚜虫介壳虫，蜜露消失后煤污自然褪去"},{"name":"70%甲基硫菌灵","usage":"800倍液喷施辅助除霉"}],"organic":["湿布蘸肥皂水轻轻擦洗叶片","虫治好后新叶自然恢复正常"],"prevention":["核心是防好蚜虫和介壳虫","保持通风，合理修剪"]},{"name":"细菌性软腐病","type":"病害","months":[6,7,8],"season":"夏季高温高湿，球根和肉质根植物梅雨季最危险","symptom":"球根或茎基部水渍状软腐、发臭，叶片突然萎蔫倒伏，拔出球根已腐烂成糊状","susceptible":"大丽花、美人蕉、朱顶红、百合、玉簪","drugs":[{"name":"3%中生菌素可湿性粉剂","usage":"800倍液喷淋+灌根，细菌病害专用"},{"name":"20%噻唑锌悬浮剂","usage":"500倍液灌根"}],"organic":["发现立即整株拔除销毁，病穴撒生石灰消毒","健康球根种植前用多菌灵浸种20分钟"],"prevention":["起挖贮藏的球根（大丽花等）晾干后干沙贮藏，贮藏环境干燥通风","种植前检查球根，剔除发软有病斑的","梅雨季防积水是核心"]},{"name":"病毒病（花叶病）","type":"病害","months":[4,5,6,7,8,9],"season":"全年可显症，传毒昆虫活跃期扩散快","symptom":"叶片出现黄绿相间的花叶、斑驳，叶片皱缩畸形，植株矮化，花朵碎色（花瓣出现异常条纹）","susceptible":"大丽花、剑兰、菊科草花、罗勒","drugs":[{"name":"无有效治疗药剂","usage":"病毒病只能防不能治，发现病株立即拔除销毁"}],"organic":["拔除病株并销毁，工具用酒精消毒","防治蚜虫/蓟马等传毒媒介是关键"],"prevention":["购买种球种苗选择可靠来源","及时防虫切断传播链","修剪工具病株处理后消毒再用于健康株"]},{"name":"缺铁性黄化","type":"生理","months":[4,5,6,7,8],"season":"春夏生长季显症，碱性土壤/浇水偏碱时加重","symptom":"新叶叶肉发黄但叶脉仍是绿色（清晰的绿色网纹状），老叶基本正常，严重时新叶全白、焦边","susceptible":"柠檬、金桔、橙子、栀子、杜鹃、绣球等喜酸植物（大悟土壤偏中性时易发）","drugs":[{"name":"硫酸亚铁（黑矾）","usage":"1:1000水溶液灌根+叶面喷施，15-20天一次，现配现用（氧化失效）"},{"name":"螯合铁（EDDHA）","usage":"按说明灌根，土壤中铁不易失效，效果更持久"}],"organic":["沤制的矾肥水（硫酸亚铁+饼肥水）浇灌","表土混入松针土/腐叶土酸化根区","浇花尽量用雨水，自来水晾晒后用"],"prevention":["喜酸植物种植时掺入酸性腐叶土/松针","避免长期用碱性水浇灌","定期（春季）补充硫酸亚铁"]},{"name":"涝害（积水烂根）","type":"生理","months":[6,7,8],"season":"大悟6月中旬-7月中旬梅雨季及夏季强降雨后","symptom":"整株突然萎蔫（土壤却很湿）、下部叶片先黄化脱落、新梢停止生长，长期积水根发黑腐烂","susceptible":"迷迭香、薰衣草、百里香、大丽花、鸢尾类、桃树等所有怕涝植物","drugs":[{"name":"30%甲霜·恶霉灵","usage":"排水后灌根消毒防腐（见根腐病）"}],"organic":["立即排水松土，扒开表土透气","遮阴降低蒸腾负担，缓苗后再见光","严重时脱盆晾根换土"],"prevention":["大悟梅雨是最大考验：怕涝植物一律抬高种植（做高畦/堆土栽）","地栽掺粗砂+腐叶土改良黏重土","盆栽垫高沥水，梅雨期移至檐下","种植前了解每种植物的排水需求"]},{"name":"冻害","type":"生理","months":[11,12,1,2],"season":"大悟1月最冷，极端低温可达-8℃以下，11月底寒潮开始","symptom":"叶片水渍状透明变软、后变褐干枯，嫩梢发黑，树皮开裂，果树花芽（枇杷冬季开花最怕冻）发褐脱落","susceptible":"三角梅、柠檬、橙子、金桔、飘香藤、五色梅、蓝雪花（按耐寒性排序，前五种必须防护）","drugs":[{"name":"防冻剂（植物抗寒剂）","usage":"寒潮前3-5天叶面喷施，提高细胞抗寒性，辅助手段"},{"name":"树干涂白","usage":"生石灰10份+硫磺1份+盐0.5份+水30份，涂主干防冻防日灼防天牛"}],"organic":["盆栽入室：10月底-11月初霜降前搬入（三角梅/柠檬/飘香藤/五色梅必须入室）","地栽包裹：主干缠草绳+无纺布，根颈培土10厘米+覆盖稻草/松鳞","耐寒-5至-10℃的 borderline 植物（蓝雪花/翠芦莉/百子莲等）根部厚覆盖+顶部包裹","寒潮夜临时套无纺布袋/塑料袋（留透气口），次日中午揭开"],"prevention":["秋季增施磷钾肥，控制氮肥，让枝条充分木质化","大悟冬季风向：种植耐寒性差的植物选背风向阳处","提前看好天气，寒潮预警前完成防护","开春不要过早撤防寒物，防倒春寒（3月仍有霜冻风险）"]},{"name":"日灼与高温障碍","type":"生理","months":[7,8],"season":"大悟7-8月持续35℃+高温，午后强光直射","symptom":"朝西南方向的叶片出现漂白色/褐色干枯斑块（日灼斑），花瓣焦边卷缩，落花落果，整株中午萎蔫傍晚恢复","susceptible":"落新妇、矾根、铁筷子、毛地黄、羽扇豆（阴性/冷凉植物最易受害）","drugs":[{"name":"无药剂","usage":"生理性问题，靠环境管理解决"}],"organic":["拉遮阳网（50%-70%遮光率），尤其冷凉型植物","早晚浇水，绝不中午浇水","盆栽移到树荫/墙荫处","叶面喷雾降温（避开正午强光时段）"],"prevention":["冷凉植物（落新妇/矾根/铁筷子）从一开始就种在半阴位置","西南朝向的花境种植耐晒品种","夏季来临前养壮根系，提高抗逆性"]}],"chores":[{"m":1,"name":"严冬防寒","tips":["大悟1月最冷，极端低温可至-8℃以下：检查三角梅、柠檬、橙子、飘香藤等已入室盆栽，放光照最好处，控水停肥","地栽不耐寒植物（蓝雪花、翠芦莉、百子莲、银叶金合欢幼树）检查包裹物是否牢固，寒潮预报前加固","宿根植物保留地上枯叶或覆盖10厘米松鳞/稻草护根","郁金香、洋水仙等秋植球根在土中正常春化，无需防护","晴天中午可给常绿植物少量浇水（水温接近室温）","室内越冬植物检查红蜘蛛（室内干燥易发），及时叶背喷水"]},{"m":2,"name":"萌芽前黄金期","tips":["月底前完成月季、紫薇、木槿等落叶木本冬季重剪（萌芽后剪会浪费养分）","裸根果树/灌木移栽的最后窗口期","全园喷一次3-5波美度石硫合剂清园，杀灭越冬病菌虫卵（芽萌动前完成）","秋植球根陆续出土，追施一次萌芽肥","月季施冬肥（腐熟有机肥+缓释肥）","月底角堇开始现蕾，追磷钾肥"]},{"m":3,"name":"春播开始·警惕倒春寒","tips":["大悟3月中下旬仍可能出现晚霜，不耐寒苗（长春花、太阳花等）切勿急于出室/定植","春植球根下地：剑兰、大丽花、美人蕉、风雨兰、朱顶红（ last call）","月底可直播向日葵、旱金莲等暖季草花","蚜虫第一代出现：挂黄板、检查月季嫩芽和果树新梢","月季萌芽展叶喷代森锰锌预防黑斑病（全年黑斑防治从现在开始）","草本植物分株换盆好时机"]},{"m":4,"name":"盛花与春植","tips":["桃、樱桃、海棠、郁金香、洋水仙等盛花期，果树花期严禁打药（伤蜂影响坐果）","春播草花直播与定植，夜温稳定12℃以上再定植太阳花/长春花","牡丹芍药类追花后肥；月季进入首个花潮，花前喷一次磷钾","白粉病开始发生：通风+苯醚甲环唑预防","刺蛾幼虫出现，备好Bt","换盆/上盆最佳期（气候温和缓苗快）"]},{"m":5,"name":"病虫高发期","tips":["蚜虫、红蜘蛛、白粉病全面高发：每周巡一次叶背，早发现早处理","月季等花后及时剪残花促复花（剪到五小叶处）","柠檬、金桔等柑橘保果期：追磷钾肥，疏去过密幼果","春季开花灌木（喷雪花、绣线菊、丁香）花后修剪","梅雨前检查排水沟，怕涝植物完成抬高种植","无花果、石榴追肥"]},{"m":6,"name":"梅雨防涝防病","tips":["大悟6月中旬入梅：黑斑病、灰霉病、根腐病高发，雨前喷代森锰锌保护，雨后补喷治疗剂","月季黑斑病关键期：随时摘除病叶，每周检查下部叶片","蜗牛蛞蝓开始活跃：撒四聚乙醛或设啤酒陷阱","雨后及时排水，盆栽垫高，检查积水","雨隙抢晴天修剪内膛枝，加强通风","桃、蜂糖李果实成熟，及时采收防食心虫"]},{"m":7,"name":"酷暑抗旱","tips":["大悟常有35℃+连续高温：早晚浇水，绝不中午浇，浇则浇透","红蜘蛛高温干旱大爆发：每周查叶背，叶面喷水+联苯肼酯防治","落新妇、矾根、铁筷子等冷凉植物拉遮阳网","台风外围强降雨后及时排涝、扶正倒伏植株","辣椒状蓟马危害月季花朵，傍晚喷药","夏季花后修剪：蓝雪花、翠芦莉轻剪促秋花"]},{"m":8,"name":"高温管理·秋播准备","tips":["持续抗旱：盆栽早晚各检查一次，优先保果树和幼苗","控氮增磷钾，帮助木本枝条充实越冬","预订秋植球根（郁金香、洋水仙、葡萄风信子）","高温障害：日灼斑属生理性，遮阴即可，不要误当病害打药","月底夜温下降，可播种早秋香草/叶菜","大丽花、美人蕉盛花期，追磷钾"]},{"m":9,"name":"秋播季开启","tips":["角堇、白晶菊、毛地黄、羽扇豆、耧斗菜秋播（需冬季低温春化，春播不开花）","宿根植物分株移栽开始（天气转凉缓苗快）","月季秋花管理：勤剪残花+追肥，秋花可开到11月","秋季蚜虫小高峰，注意新播幼苗","梅雨季烂根的盆栽趁此时换盆修根","恢复施肥（夏季停肥的植物）"]},{"m":10,"name":"秋植球根·施基肥","tips":["郁金香、葡萄风信子、洋水仙、百合下地（10月下旬-11月上旬最佳，郁金香可冷藏处理后种）","全园施有机基肥：腐熟饼肥/羊粪/堆肥，为来年储备养分","大丽花地上部分枯萎后挖起块根，晾干后干沙贮藏","落叶开始：病叶（黑斑病月季叶）单独收集销毁，健康叶可堆肥","继续宿根分株；无花果、石榴采收","月季秋季最后的修剪整形"]},{"m":11,"name":"移栽与清园","tips":["落叶后是果树、灌木裸根移栽最佳期（桃、樱桃、海棠、木槿等）","霜降前（11月初）三角梅、柠檬、橙子、飘香藤、五色梅搬入室内，越冬位置光照充足","彻底清园：清枯枝落叶+喷石硫合剂，减少来年病虫基数","树干涂白（果树和紫薇）：防冻+防天牛产卵","地栽半耐寒植物根部培土+覆盖","朱顶红等可起球贮藏或留土覆盖"]},{"m":12,"name":"休眠与防寒","tips":["月季、紫薇、木槿冬季重剪（月季剪除2/3弱枝病枝，紫薇截干整形）","关注寒潮预报：极端低温前完成包裹加固","室内越冬盆栽控水停肥，中午温暖时开窗通风","清理病残体，工具消毒保养","规划来年种植：翻阅本应用的日历和图鉴做补植计划","祝花园安然过冬"]}],"climate":{"location":"湖北省孝感市大悟县","zone":"北亚热带季风气候（约相当于 USDA 8a）","temp":"年均气温约15-16℃；1月最冷（平均2-3℃，极端可达-8℃以下）；7月最热（平均28℃+，极端39℃）","rain":"年降水量约1000-1200mm；6月中旬-7月中旬为梅雨期，降水集中；夏季多强降雨","frost":"无霜期约230-240天；初霜11月上中旬，终霜3月中下旬","soil":"以黄棕壤、水稻土为主，微酸性至中性，黏重地块需掺粗砂和有机质改良排水","key":"两大考验：梅雨季（6-7月）防涝防真菌病 + 冬季湿冷（极端-8℃）防寒；夏季高温期注意抗旱与红蜘蛛"}};
+const PLANTS = APP_DATA.plants, PESTS = APP_DATA.pests, CHORES = APP_DATA.chores, CLIMATE = APP_DATA.climate;
+const MARR = ["","1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+const TAG_ORDER = ["草花","灌木","果树","球根","藤本","乔木","地被","观叶","宿根","观赏草","香草","亚灌木"];
+const now = new Date(), NOW_M = now.getMonth()+1;
+const $ = s => document.querySelector(s);
+const esc = s => String(s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200);}
+
+/* ================= 图鉴 ================= */
+let curTag = "全部", curLvl = "全部";
+const LVLS = [["全部","全部"],["suit","完全适合"],["protect","需防护"],["indoor","需入室"]];
+function renderCatChips(){
+  const cnt = {};
+  PLANTS.forEach(p => p.tags.forEach(t => cnt[t]=(cnt[t]||0)+1));
+  let h = chip("全部", PLANTS.length, curTag);
+  TAG_ORDER.forEach(t => { if(cnt[t]) h += chip(t, cnt[t], curTag); });
+  $("#cat-chips").innerHTML = h;
+  $("#lvl-chips").innerHTML = LVLS.map(([v,l]) =>
+    `<div class="chip ${curLvl===v?'on':''}" onclick="curLvl='${v}';renderCatalog()">${l}</div>`).join("");
+}
+function chip(t,c,on){return `<div class="chip ${on===t?'on':''}" onclick="curTag='${t}';renderCatalog()">${t}<span class="cnt">${c}</span></div>`;}
+function renderPhotoStat(){
+  const total = PLANTS.length;
+  const hasExcel = PLANTS.filter(p=>EXCEL_PHOTOS[p.name]).length;
+  const nUser = Object.keys(userPhotos).length;
+  $("#photo-stat").innerHTML=`
+    <span>📷 自带图 <b style="color:var(--green-d)">${hasExcel}</b>/${total} · 我的照片 <b style="color:#e65100">${nUser}</b></span>
+    <span style="color:#cfd8dc">|</span>
+    <a onclick="curTag='__nophoto';renderCatalog()" style="color:${curTag==='__nophoto'?'var(--green)':'var(--txt2)'};cursor:pointer">看缺图</a>
+    <a onclick="curTag='__mine';renderCatalog()" style="color:${curTag==='__mine'?'var(--green)':'var(--txt2)'};cursor:pointer">看我传的</a>`;
+}
+function renderCatalog(){
+  renderCatChips();
+  renderPhotoStat();
+  const q = $("#q").value.trim().toLowerCase();
+  const list = PLANTS.filter(p =>
+    ((curTag==="全部" || curTag==="__photos" || curTag==="__nophoto" || curTag==="__mine") ? true : p.tags.includes(curTag)) &&
+    (curLvl==="全部" || p.adaptLevel===curLvl) &&
+    (curTag==="__nophoto" ? !plantPhotos[p.name] : true) &&
+    (curTag==="__mine" ? !!userPhotos[p.name] : true) &&
+    (!q || (p.name+p.cat+p.light+p.soil+p.care+p.adapt+p.position).toLowerCase().includes(q)));
+  if(!list.length){$("#plant-list").innerHTML = `<div class="empty"><div class="e-ic">🌱</div>没有找到匹配的植物<br>换个关键词试试</div>`;return;}
+  $("#plant-list").innerHTML = list.map(p => `
+    <div class="pcard" onclick="openPlant(${p.id})">
+      <div class="pthumb">${plantImgHTML(p.name, '', `<span class="pthumb-fb">${esc(p.name.slice(0,1))}</span><span class="pthumb-cat">${esc(p.cat)}</span>${!plantPhotos[p.name]?'<span class="pthumb-dot" title="未上传照片"></span>':''}`)}${userPhotos[p.name]?'<span class="pthumb-mine">📷</span>':""}</div>
+      <div class="pbody">
+        <div class="top">
+          <div><span class="nm">${esc(p.name)}</span><span class="cat">${esc(p.cat)}</span></div>
+          <span class="badge b-${p.adaptLevel}">${p.adaptText}</span>
+        </div>
+        <div class="mstrip">${MSTRIP(p)}</div>
+        <div class="minfo">
+          ${p.flower.length?`<span>🌸 <b>${fmtM(p.flower)}</b>开花</span>`:""}
+          ${p.fruit.length?`<span class="fr">🍊 <b>${fmtM(p.fruit)}</b>结果</span>`:""}
+          ${p.plant.length?`<span class="pl">🌱 <b>${fmtM(p.plant)}</b>种植</span>`:""}
+          ${p.hardy!=null?`<span>❄️ 耐寒${p.hardy}℃</span>`:""}
+        </div>
+      </div>
+    </div>`).join("") + `<div style="text-align:center;font-size:11.5px;color:#b0bec5;padding:8px 0 2px">共 ${list.length} 种植物</div>`;
+}
+function MSTRIP(p){
+  let h="";
+  for(let m=1;m<=12;m++){
+    let c = p.flower.includes(m)?"f":(p.fruit.includes(m)?"u":(p.plant.includes(m)?"p":""));
+    h+=`<i class="${c}"></i>`;
+  }
+  return h;
+}
+function fmtM(arr){
+  if(!arr||!arr.length)return"";
+  if(arr.length===12)return"全年";
+  const s=[...arr].sort((a,b)=>a-b);
+  if(s[s.length-1]-s[0]===s.length-1)
+    return s.length===1?MARR[s[0]]:MARR[s[0]]+"-"+MARR[s[s.length-1]];
+  // 跨年区间检测：环形上仅一个断口 → 单一跨年区间
+  const gaps=[];
+  for(let i=0;i<s.length-1;i++) if(s[i+1]-s[i]>1) gaps.push(i);
+  const wrapGap = (12-s[s.length-1]+s[0])>1;
+  if(gaps.length + (wrapGap?1:0) === 1){
+    if(gaps.length===1){const g=gaps[0];return MARR[s[g+1]]+"至次年"+MARR[s[g]];}
+    return MARR[s[0]]+"至次年"+MARR[s[s.length-1]];
+  }
+  // 多段
+  const segs=[];let st=s[0],prev=s[0];
+  for(let i=1;i<s.length;i++){
+    if(s[i]!==prev+1){segs.push(st===prev?MARR[st]:MARR[st]+"-"+MARR[prev]);st=s[i];}
+    prev=s[i];
+  }
+  segs.push(st===prev?MARR[st]:MARR[st]+"-"+MARR[prev]);
+  return segs.join("、");
+}
+
+/* ================= 详情 sheet ================= */
+function openPlant(id){
+  const p = PLANTS.find(x=>x.id===id); if(!p)return;
+  const rows = [
+    ["分类", esc(p.cat)+(p.life?` · ${esc(p.life)}`:"")],
+    ["光照", esc(p.light||"—")],
+    ["土壤", esc(p.soil||"—")],
+    ["景观位置", esc(p.position||"—")],
+    ["养护要点", esc(p.care||"—")],
+    ["大悟适生性", esc(p.adapt||"—")],
+  ];
+  if(p.flowerNote) rows.splice(2,0,["花期说明", esc(p.flowerNote)]);
+  $("#sheet").innerHTML = `
+    <div class="grab"></div><button class="close-x" onclick="closeSheet()">✕</button>
+    <div class="d-hero">
+      ${plantImgHTML(p.name,'d-hero-img',`<span class="d-hero-fb">${esc(p.name.slice(0,1))}</span>`)}
+      <span class="d-hero-cat">${esc(p.cat)}</span>
+      ${userPhotos[p.name]?'<span class="d-hero-tip">📷 当前是我的照片</span>':(plantPhotos[p.name]?'':'<span class="d-hero-tip">点右下方上传你的照片 📷</span>')}
+      <button class="d-photo-btn" onclick="pickPlantPhoto('${esc(p.name).replace(/'/g,"\\'")}').then(()=>{renderCatalog();openPlant(${p.id});})">📷 ${userPhotos[p.name]?'更换我的照片':(plantPhotos[p.name]?'换成我的照片':'上传我的照片')}</button>
+      ${userPhotos[p.name]?`<button class="d-photo-del" onclick="removePlantPhoto('${esc(p.name).replace(/'/g,"\\'")}').then(()=>{renderCatalog();openPlant(${p.id});})">🗑 移除</button>`:""}
+    </div>
+    <div class="d-head">
+      <div class="t">${esc(p.name)} <span class="badge b-${p.adaptLevel}">${p.adaptText}</span></div>
+      <div class="s">${esc(p.cat)}${p.hardy!=null?` · 耐寒 ${p.hardy}℃`:""}${p.life?` · ${esc(p.life)}`:""}</div>
+    </div>
+    <div class="d-sec">
+      <h3>📅 种植 · 开花 · 结果 日历（大悟气候）</h3>
+      <div class="calgrid">${calRow("🌱 种植",p.plant,"p")}<div class="calrow"><span class="mon"></span>${MARR.slice(1).map(m=>`<span class="mon">${m.replace("月","")}</span>`).join("")}</div>${calRow("🌸 开花",p.flower,"f")}${calRow("🍊 结果",p.fruit,"u")}
+        <div class="callegend">
+          <span><i style="background:var(--plant-l);border:1px solid var(--plant)"></i>适宜种植期</span>
+          <span><i style="background:var(--flower-l);border:1px solid var(--flower)"></i>花期</span>
+          <span><i style="background:var(--fruit-l);border:1px solid var(--fruit)"></i>果期</span>
+          <span><i style="background:#eceff1"></i>当前月份：${NOW_M}月</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#78909c;margin-top:7px;line-height:1.6">${p.plant.length?`💡 最佳种植时间：<b style="color:var(--green-d)">${fmtM(p.plant)}</b>。`:``}${p.flowerNote?esc(p.flowerNote):""}</div>
+    </div>
+    <div class="d-sec"><h3>📖 基本档案</h3><div class="info-list">${rows.map(([k,v])=>`<div class="row"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
+    <div class="d-sec"><h3>🛡️ 常发病虫害（点击查看防治方案）</h3>
+      <div class="pest-chips">${p.pests.map(n=>{const pe=PESTS.find(x=>x.name===n);return pe?`<div class="pest-chip pc-${pe.type.slice(0,1)==="虫"?"虫害":(pe.type.slice(0,1)==="病"?"病害":"生理")}" onclick="openPest(${PESTS.indexOf(pe)})">${n}</div>`:"";}).join("")}</div>
+    </div>
+    <div class="d-actions">
+      <button class="btn btn-o" onclick="viewPlantDiary('${esc(p.name).replace(/'/g,"")}')">📖 查看它的日记</button>
+      <button class="btn btn-p" onclick="openDiaryForm('${esc(p.name).replace(/'/g,"")}')">✍️ 写日记</button>
+    </div>
+    ${p.custom?`<div class="d-actions" style="padding-top:0"><button class="btn btn-o" style="flex:1" onclick="openPlantForm('${esc(p.name).replace(/'/g,"\\'")}')">✏️ 编辑资料</button></div>`:""}
+    <div style="height:14px"></div>`;
+  $("#ovl").classList.add("show");
+  $("#sheet").scrollTop = 0;
+}
+function calRow(lbl,arr,cls){
+  let cells="";
+  for(let m=1;m<=12;m++) cells+=`<i class="${arr.includes(m)?cls:""} ${m===NOW_M?"cur":""}"></i>`;
+  return `<div class="calrow"><span class="lbl"><b>${lbl.split(" ")[0]}</b><br>${lbl.split(" ")[1]||""}</span>${cells}</div>`;
+}
+function closeSheet(){$("#ovl").classList.remove("show");}
+
+/* ================= 日历 ================= */
+let calView="m", curMonth=NOW_M, yTag="全部";
+function calMode(v){calView=v;$("#seg-m").classList.toggle("on",v==="m");$("#seg-y").classList.toggle("on",v==="y");
+  $("#cal-month").style.display=v==="m"?"":"none";$("#cal-year").style.display=v==="y"?"":"none";}
+function renderCal(){
+  $("#clim-card").innerHTML = `<b>🌍 大悟县花园气候档案</b><br>${CLIMATE.zone}｜${CLIMATE.temp}<br>${CLIMATE.rain}｜${CLIMATE.frost}<br>土壤：${CLIMATE.soil}<br><b>⚠️ ${CLIMATE.key}</b>`;
+  $("#mon-pills").innerHTML = CHORES.map(c=>{
+    const f=PLANTS.filter(p=>p.flower.includes(c.m)).length;
+    return `<div class="mpill ${c.m===curMonth?'on':''}" onclick="curMonth=${c.m};renderCal()">${c.m}月<small>${f}种开花</small></div>`;}).join("");
+  const m=curMonth, ch=CHORES[m-1];
+  const fl=PLANTS.filter(p=>p.flower.includes(m)), fr=PLANTS.filter(p=>p.fruit.includes(m)), pl=PLANTS.filter(p=>p.plant.includes(m));
+  const ps=PESTS.filter(x=>x.months.includes(m));
+  $("#mon-detail").innerHTML = `
+    <div class="mcard"><h4><span class="dot" style="background:var(--flower)"></span>${m}月开花（${fl.length}种）</h4>
+      <div class="nmchips">${fl.map(p=>`<span class="nmchip nc-f" onclick="openPlant(${p.id})">${esc(p.name)}</span>`).join("")||"<span style='font-size:12.5px;color:#b0bec5'>本月暂无</span>"}</div></div>
+    <div class="mcard"><h4><span class="dot" style="background:var(--fruit)"></span>${m}月结果（${fr.length}种）</h4>
+      <div class="nmchips">${fr.map(p=>`<span class="nmchip nc-u" onclick="openPlant(${p.id})">${esc(p.name)}</span>`).join("")||"<span style='font-size:12.5px;color:#b0bec5'>本月暂无</span>"}</div></div>
+    <div class="mcard"><h4><span class="dot" style="background:var(--plant)"></span>${m}月可种植 / 移栽（${pl.length}种）</h4>
+      <div class="nmchips">${pl.map(p=>`<span class="nmchip nc-p" onclick="openPlant(${p.id})">${esc(p.name)}</span>`).join("")||"<span style='font-size:12.5px;color:#b0bec5'>本月暂无</span>"}</div></div>
+    <div class="mcard"><h4><span class="dot" style="background:#64b5f6"></span>本月需防范的病虫（${ps.length}项）</h4>
+      <div class="nmchips">${ps.map(x=>`<span class="nmchip nc-x" onclick="openPest(${PESTS.indexOf(x)})">${x.type.slice(0,1)}·${x.name}</span>`).join("")}</div></div>
+    <div class="mcard"><h4><span class="dot" style="background:var(--green)"></span>${m}月农事提醒 · ${ch.name}</h4>
+      <ul class="tips">${ch.tips.map(t=>`<li>${t}</li>`).join("")}</ul></div>`;
+  // year table
+  $("#y-chips").innerHTML = `<div class="chip ${yTag==='全部'?'on':''}" onclick="yTag='全部';renderCal()">全部<span class="cnt">${PLANTS.length}</span></div>`+
+    TAG_ORDER.map(t=>{const c=PLANTS.filter(p=>p.tags.includes(t)).length;return c?`<div class="chip ${yTag===t?'on':''}" onclick="yTag='${t}';renderCal()">${t}<span class="cnt">${c}</span></div>`:"";}).join("");
+  const yl = PLANTS.filter(p=>yTag==="全部"||p.tags.includes(yTag));
+  $("#ytable").innerHTML = `<div class="yrow head"><div class="ynm">植物 / 月份</div><div class="ycells">${MARR.slice(1).map(x=>`<div class="ycell ycell-h">${x.replace("月","")}</div>`).join("")}</div></div>`+
+    yl.map(p=>`<div class="yrow ${"curmon"}" style="--cm:${NOW_M}"><div class="ynm" onclick="openPlant(${p.id})" style="cursor:pointer">${esc(p.name)}</div><div class="ycells">${
+      Array.from({length:12},(_,i)=>{const m=i+1,f=p.flower.includes(m),u=p.fruit.includes(m),pl=p.plant.includes(m);
+        let c=f&&u?"fp":(pl&&f?"pf":(f?"f":(u?"u":(pl?"p":""))));
+        return `<div class="ycell ${c}" onclick="openPlant(${p.id})" style="cursor:pointer"></div>`;}).join("")
+    }</div></div>`).join("");
+}
+
+/* ================= 日记 (IndexedDB) ================= */
+let db=null, entries=[], idbOK=true;
+const STAGES=["播种","发芽","幼苗期","生长","现蕾","开花","结果","采收","修剪","换盆移栽","施肥","病虫处理","越冬防护","其他"];
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    let rq;
+    try{rq=indexedDB.open("gardenApp",1);}catch(e){idbOK=false;return res();}
+    rq.onupgradeneeded=e=>{const d=e.target.result;
+      if(!d.objectStoreNames.contains("diary"))d.createObjectStore("diary",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("media"))d.createObjectStore("media",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("plantPhotos"))d.createObjectStore("plantPhotos",{keyPath:"name"});
+      if(!d.objectStoreNames.contains("customPlants"))d.createObjectStore("customPlants",{keyPath:"name"});};
+    rq.onsuccess=e=>{db=e.target.result;res();};
+    rq.onerror=()=>{idbOK=false;res();};
+  });
+}
+function idbAll(store){return new Promise((res,rej)=>{const rq=db.transaction(store).objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});}
+function idbPut(store,v){return new Promise((res,rej)=>{const rq=db.transaction(store,"readwrite").objectStore(store).put(v);rq.onsuccess=()=>res();rq.onerror=()=>rej(rq.error);});}
+function idbDel(store,k){return new Promise((res,rej)=>{const rq=db.transaction(store,"readwrite").objectStore(store).delete(k);rq.onsuccess=()=>res();rq.onerror=()=>rej(rq.error);});}
+function idbGet(store,k){return new Promise((res,rej)=>{const rq=db.transaction(store).objectStore(store).get(k);rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});}
+
+/* ================= 植物照片（用户上传） ================= */
+const plantPhotos = {};   // name -> URL (用户上传的 blob URL 优先，否则用 Excel 原图)
+const userPhotos = {};    // 仅记录用户自己上传的
+const EXCEL_PHOTOS = APP_DATA.excelPhotos || {};  // name -> photos/imageN.png
+async function loadAllPhotos(){
+  if(idbOK&&db){
+    try{
+      const all = await idbAll("plantPhotos");
+      all.forEach(r => { if(r.blob && r.name){ plantPhotos[r.name]=URL.createObjectURL(r.blob); userPhotos[r.name]=true; } });
+    }catch(e){console.warn(e);}
+  }
+  // Excel 原图作为默认（用户上传的优先）
+  for(const [name,url] of Object.entries(EXCEL_PHOTOS)){
+    if(!plantPhotos[name]) plantPhotos[name]=url;
+  }
+}
+function isUserPhoto(name){return !!userPhotos[name];}
+async function setPlantPhoto(name, blob){
+  if(plantPhotos[name]){URL.revokeObjectURL(plantPhotos[name]);delete plantPhotos[name];}
+  plantPhotos[name]=URL.createObjectURL(blob);
+  if(!idbOK){toast("当前模式不支持保存图片，请通过在线链接使用");return false;}
+  await idbPut("plantPhotos",{name, blob});
+  return true;
+}
+async function delPlantPhoto(name){
+  if(plantPhotos[name]){URL.revokeObjectURL(plantPhotos[name]);delete plantPhotos[name];}
+  delete userPhotos[name];
+  if(idbOK) await idbDel("plantPhotos",name);
+  // 恢复 Excel 原图作为默认（如果有）
+  if(EXCEL_PHOTOS[name]) plantPhotos[name]=EXCEL_PHOTOS[name];
+}
+function plantImgHTML(name, cls, fallback){
+  const url = plantPhotos[name];
+  return url ? `<img class="${cls}" src="${url}" loading="lazy" alt="${esc(name)}">` : fallback;
+}
+/* 图片压缩到最大边 1200px、JPEG 0.85，省 IDB 空间 */
+async function compressImg(file, maxSide=1200, quality=0.85){
+  if(!file.type.startsWith("image/")) return file;
+  const img = await new Promise((res,rej)=>{
+    const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=URL.createObjectURL(file);
+  });
+  let w=img.width, h=img.height;
+  if(Math.max(w,h)>maxSide){
+    if(w>=h){h=Math.round(h*maxSide/w);w=maxSide;}
+    else{w=Math.round(w*maxSide/h);h=maxSide;}
+  }
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+  cv.getContext('2d').drawImage(img,0,0,w,h);
+  return new Promise(res=>cv.toBlob(b=>res(b||file),'image/jpeg',quality));
+}
+function pickPlantPhoto(name){
+  return new Promise(res=>{
+    const inp=document.createElement('input');
+    inp.type='file'; inp.accept='image/*'; inp.setAttribute('capture','environment');
+    inp.onchange=async()=>{
+      const f=inp.files[0]; if(!f){return res(false);}
+      try{
+        if(f.size>5*1024*1024){toast("原图较大，正在压缩…");}
+        const blob=await compressImg(f);
+        const ok=await setPlantPhoto(name, blob);
+        if(ok) toast("已更新 ✨");
+        res(true);
+      }catch(e){toast("图片处理失败");res(false);}
+    };
+    inp.click();
+  });
+}
+async function removePlantPhoto(name){
+  if(!confirm(`确定删除「${name}」的照片吗？`))return;
+  await delPlantPhoto(name);
+  toast("已删除");
+}
+
+/* ================= 自定义植物 ================= */
+const CATS = ["草本/灌木","藤本/灌木","藤本/地被","灌木","草本/地被","乔木","果树","球根","香草","水生","多肉"];
+const LIFES = ["一年生","二年生","多年生","常绿","落叶"];
+const LVLMAP = [["suit","完全适合"],["protect","需冬季防护"],["strict","需严格防寒"],["indoor","需入室越冬"]];
+let customPlants = [];   // 用户添加的植物原始记录
+let editingPlant = null; // 当前编辑的自定义植物名
+function customId(){ return 1000 + customPlants.length + Math.floor(Math.random()*99); }
+async function loadCustomPlants(){
+  if(!idbOK||!db) return;
+  try{
+    customPlants = await idbAll("customPlants");
+    customPlants.forEach(mergeCustom);
+  }catch(e){console.warn(e);}
+}
+function mergeCustom(rec){
+  // 避免重复
+  const exist = PLANTS.find(p=>p.name===rec.name);
+  if(exist){ // 覆盖静态数据（编辑场景）
+    Object.assign(exist, {...rec, id:exist.id, custom:true});
+    return;
+  }
+  PLANTS.push({...rec, id: rec.id || customId(), custom:true});
+}
+async function saveCustomPlant(rec){
+  if(!idbOK){toast("当前模式不支持保存，请通过在线链接使用");return false;}
+  await idbPut("customPlants", rec);
+  mergeCustom(rec);
+  return true;
+}
+async function delCustomPlant(name){
+  if(!confirm(`确定删除自定义植物「${name}」吗？（不影响图鉴自带植物）`))return;
+  if(idbOK) await idbDel("customPlants", name);
+  const idx = PLANTS.findIndex(p=>p.name===name && p.custom);
+  if(idx>=0) PLANTS.splice(idx,1);
+  customPlants = customPlants.filter(p=>p.name!==name);
+  await delPlantPhoto(name);
+  closeSheet();renderCatalog();renderCal();
+  toast("已删除");
+}
+/* 种植期规则提示：按类别给建议月份 */
+function suggestPlantMonths(cat){
+  if(/球根/.test(cat)) return [10,11];
+  if(/果树|乔木/.test(cat)) return [2,3,11,12];
+  if(/藤本|灌木/.test(cat)) return [3,4,11,12];
+  if(/香草|多肉/.test(cat)) return [4,5,9,10];
+  return [3,4,9,10]; // 草花/宿根默认
+}
+function openPlantForm(name){
+  closeSheet();
+  editingPlant = name || null;
+  const p = name ? PLANTS.find(x=>x.name===name&&x.custom) : null;
+  const mk = (arr,sel)=>arr.map(v=>`<option ${v===sel?"selected":""}>${v}</option>`).join("");
+  const monPick = (id,label,arr)=>`
+    <div class="f-sec"><label>${label} <span style="font-size:11px;color:#90a4ae">点选月份，再点取消</span></label>
+    <div class="monpick" id="${id}">${Array.from({length:12},(_,i)=>`<span class="mp ${arr&&arr.includes(i+1)?"on":""}" data-m="${i+1}" onclick="this.classList.toggle('on')">${i+1}</span>`).join("")}</div></div>`;
+  const sug = p?p.plant:suggestPlantMonths(p?p.cat:"草本/灌木");
+  $("#fsheet").innerHTML=`
+    <div class="grab"></div><button class="close-x" onclick="closeForm(false)">✕</button>
+    <div class="d-head"><div class="t" style="font-size:18px">${p?"✏️ 编辑植物":"🌱 添加新植物"}</div></div>
+    <div style="padding:14px 18px 24px">
+      <div class="f-sec"><label>植物名称 *</label><input type="text" id="cp-name" value="${p?esc(p.name):""}" placeholder="如：风车茉莉"></div>
+      <div class="f-sec"><label>类别</label><select id="cp-cat">${mk(CATS,p?p.cat:"草本/灌木")}</select></div>
+      <div class="f-sec"><label>生命周期</label><select id="cp-life">${mk(LIFES,p?p.life:"多年生")}</select></div>
+      ${monPick("cp-flower","🌸 花期",p?p.flower:[])}
+      ${monPick("cp-fruit","🍊 果期",p?p.fruit:[])}
+      ${monPick("cp-plant","🌱 建议种植期（大悟）",sug)}
+      <div class="f-sec"><label>光照</label><input type="text" id="cp-light" value="${p?esc(p.light||""):""}" placeholder="如：喜全日照，耐半阴"></div>
+      <div class="f-sec"><label>土壤</label><input type="text" id="cp-soil" value="${p?esc(p.soil||""):""}" placeholder="如：微酸性沙质土"></div>
+      <div class="f-sec"><label>景观位置</label><input type="text" id="cp-pos" value="${p?esc(p.position||""):""}" placeholder="如：中景 / 花池 B 区"></div>
+      <div class="f-sec"><label>养护要点</label><textarea id="cp-care" rows="2" placeholder="浇水、施肥、修剪要点…"></textarea></div>
+      <div class="f-sec"><label>大悟适生性说明</label><input type="text" id="cp-adapt" value="${p?esc(p.adapt||""):""}" placeholder="如：露地越冬，梅雨期注意排水"></div>
+      <div class="f-sec"><label>耐寒温度（℃）</label><input type="number" id="cp-hardy" value="${p&&p.hardy!=null?p.hardy:""}" placeholder="如 -8"></div>
+      <div class="f-sec"><label>适生等级</label><select id="cp-level">${mk(LVLMAP.map(x=>x[1]),p?p.adaptText:"完全适合")}</select></div>
+      <button class="btn btn-p" style="width:100%;margin-top:14px" onclick="submitPlantForm()">${p?"保存修改":"添加到图鉴"}</button>
+      ${p?`<button class="btn btn-o" style="width:100%;margin-top:8px;color:#c62828" onclick="closeForm(false);delCustomPlant('${esc(p.name).replace(/'/g,"\\'")}')">删除此植物</button>`:""}
+    </div>`;
+  $("#fov").classList.add("show");
+}
+function pickMon(id){return [...document.querySelectorAll(`#${id} .mp.on`)].map(x=>+x.dataset.m);}
+function catToTag(cat){
+  cat = cat||"";
+  if(cat.includes("果树"))return "果树";
+  if(cat.includes("乔木"))return "乔木";
+  if(cat.includes("球根"))return "球根";
+  if(cat.includes("香草"))return "香草";
+  if(cat.includes("灌木"))return "灌木";
+  if(cat.includes("藤本"))return "藤本";
+  if(cat.includes("地被"))return "地被";
+  if(cat.includes("水生"))return "宿根";
+  if(cat.includes("多肉"))return "观叶";
+  return "草花";
+}
+async function submitPlantForm(){
+  const name=$("#cp-name").value.trim();
+  if(!name){toast("请填写植物名称 🌱");return;}
+  const dup = PLANTS.find(p=>p.name===name && p.name!==editingPlant);
+  if(dup && !dup.custom){toast("与图鉴自带植物重名，请换个名字");return;}
+  if(dup){toast("已有同名植物，请在图鉴中编辑它");return;}
+  const adaptText=$("#cp-level").value;
+  const rec={
+    name, cat:$("#cp-cat").value, life:$("#cp-life").value,
+    tags:[catToTag($("#cp-cat").value)],
+    flower:pickMon("cp-flower"), fruit:pickMon("cp-fruit"), plant:pickMon("cp-plant"),
+    light:$("#cp-light").value.trim(), soil:$("#cp-soil").value.trim(),
+    position:$("#cp-pos").value.trim(), care:$("#cp-care").value.trim(),
+    adapt:$("#cp-adapt").value.trim(),
+    hardy:$("#cp-hardy").value===""?null:+$("#cp-hardy").value,
+    adaptLevel:(LVLMAP.find(x=>x[1]===adaptText)||LVLMAP[0])[0],
+    adaptText, flowerNote:"",
+    custom:true,
+  };
+  const ok=await saveCustomPlant(rec);
+  if(!ok)return;
+  if(!customPlants.find(p=>p.name===name))customPlants.push(rec);
+  renderCatalog();renderCal();
+  closeForm(true);
+  toast(editingPlant?"已保存 ✅":"已添加「"+name+"」🌱");
+  editingPlant=null;
+}
+
+let pendingFiles=[];       // 本次新选择的文件
+let editingEntry=null;     // 正在编辑的记录
+let editingMedia=[];       // 编辑时已有的附件 {id,url,type}
+let removedMedia=[];       // 编辑时被删除的附件 id
+let curSug=[];             // 当前植物名建议列表
+
+function plantSugList(kw){
+  const k=(kw||"").trim().toLowerCase();
+  if(!k){
+    const recent=[];
+    entries.slice().sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
+      if(!recent.includes(e.plant))recent.push(e.plant);});
+    return recent.slice(0,12);
+  }
+  const m=PLANTS.map(p=>p.name).filter(n=>n.toLowerCase().includes(k));
+  m.sort((a,b)=>a.toLowerCase().indexOf(k)-b.toLowerCase().indexOf(k)||a.localeCompare(b,"zh"));
+  return m.slice(0,40);
+}
+function renderPlantSug(){
+  const inp=$("#f-plant"), box=$("#f-sug");
+  if(!inp||!box)return;
+  const kw=inp.value.trim();
+  curSug=plantSugList(kw);
+  box.innerHTML=(kw?"":`<div class="sug-t">最近记录过的植物</div>`)+
+    curSug.map((n,i)=>`<div class="sug-i" onmousedown="pickSug(${i})">${esc(n)}</div>`).join("")+
+    (kw?`<div class="sug-i sug-new" onmousedown="pickSug(-1)">✎ 直接记录为「${esc(kw)}」</div>`:"");
+  box.style.display="block";
+  const hint=$("#f-plant-hint");
+  if(hint)hint.textContent=(kw&&!PLANTS.some(p=>p.name===kw))?"清单里没有这个植物，将作为自定义植物记录":"";
+}
+function pickSug(i){
+  const inp=$("#f-plant");
+  if(i>=0&&curSug[i])inp.value=curSug[i];
+  $("#f-sug").style.display="none";
+  const hint=$("#f-plant-hint");
+  if(hint)hint.textContent="";
+}
+function hideSugSoon(){setTimeout(()=>{const b=$("#f-sug");if(b)b.style.display="none";},180);}
+
+async function openDiaryForm(plantName, entryId){
+  closeSheet();
+  pendingFiles=[]; editingMedia=[]; removedMedia=[]; editingEntry=null;
+  const today=now.toISOString().slice(0,10);
+  let date=today, text="", stage="生长", plant=plantName||"";
+  if(entryId){
+    const e=entries.find(x=>x.id===entryId);
+    if(e){editingEntry=e;date=e.date||today;text=e.text||"";stage=e.stage||"其他";plant=e.plant||"";}
+  }
+  const inCatalog=PLANTS.some(p=>p.name===plant);
+  const seq=editingEntry?plantEntryIndex(editingEntry)+1:0;
+  $("#fsheet").innerHTML=`
+    <div class="grab"></div><button class="close-x" onclick="closeForm(false)">✕</button>
+    <div class="d-head"><div class="t" style="font-size:18px">${editingEntry?"✏️ 编辑这条记录":"✍️ 新的种植记录"}</div>
+      <div class="s">${editingEntry?esc(plant)+" · 第 "+seq+" 条记录":"选植物 → 记状态，同一植物可持续追加"}</div></div>
+    <div style="padding:14px 18px 24px">
+      <div class="f-sec"><label>日期</label><input type="date" id="f-date" value="${date}"></div>
+      <div class="f-sec"><label>植物（输入名称即可搜索）</label>
+        <input type="text" id="f-plant" placeholder="输入植物名，如「蓝雪花」" autocomplete="off" value="${esc(plant)}"
+          oninput="renderPlantSug()" onfocus="renderPlantSug()" onblur="hideSugSoon()">
+        <div class="sug" id="f-sug" style="display:none"></div>
+        <div class="f-hint" id="f-plant-hint">${plant&&!inCatalog?"清���里没有这个植物，将作为自定义植物记录":""}</div></div>
+      <div class="f-sec"><label>生长阶段</label><div class="stage-pick" id="f-stage">${STAGES.map(s=>`<div class="schip ${s===stage?'on':''}" onclick="pickStage(this)">${s}</div>`).join("")}</div></div>
+      <div class="f-sec"><label>记录内容</label><textarea id="f-text" placeholder="今天做了什么？植物状态如何？（发芽了/长高几厘米/开花了/发现虫子…）">${esc(text)}</textarea></div>
+      <div class="f-sec"><label>照片 / 视频</label>
+        <div class="fup" id="fup">
+          <div class="ph" onclick="$('#file-in').click()"><span>＋</span>添加</div>
+        </div>
+        <input type="file" id="file-in" accept="image/*,video/*" multiple style="display:none" onchange="addFiles(this)">
+        <div style="font-size:11px;color:#b0bec5;margin-top:6px">支持多张照片和视频，保存在本机浏览器中</div>
+      </div>
+      <button class="btn btn-p" style="width:100%" onclick="saveDiary()">💾 ${editingEntry?"保存修改":"保存记录"}</button>
+      ${editingEntry?`<button class="btn" style="width:100%;margin-top:8px;background:#eceff1;color:#c62828" onclick="delEntry('${editingEntry.id}')">🗑 删除这条记录</button>`:""}
+    </div>`;
+  if(editingEntry){
+    for(const mid of (editingEntry.mediaIds||[])){
+      try{const rec=await idbGet("media",mid);
+        if(rec)editingMedia.push({id:mid,url:URL.createObjectURL(rec.blob),type:rec.type});}catch(e){}
+    }
+  }
+  renderPending();
+  $("#fov").classList.add("show");
+  $("#fsheet").scrollTop=0;
+}
+function plantEntryIndex(e){
+  const g=entries.filter(x=>x.plant===e.plant)
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.created.localeCompare(b.created));
+  return Math.max(0,g.findIndex(x=>x.id===e.id));
+}
+function pickStage(el){[...el.parentNode.children].forEach(c=>c.classList.remove("on"));el.classList.add("on");}
+function renderPending(){
+  const box=$("#fup");if(!box)return;
+  box.querySelectorAll(".pre").forEach(e=>e.remove());
+  editingMedia.forEach((m,i)=>{
+    const d=document.createElement("div");d.className="pre";
+    d.innerHTML=(m.type&&m.type.startsWith("video"))?`<video src="${m.url}" muted></video><span class="vtag">视频</span>`:`<img src="${m.url}">`;
+    const b=document.createElement("button");b.className="rm";b.textContent="✕";
+    b.onclick=()=>{removedMedia.push(m.id);editingMedia.splice(i,1);renderPending();};
+    d.appendChild(b);box.appendChild(d);
+  });
+  pendingFiles.forEach((f,i)=>{
+    const d=document.createElement("div");d.className="pre";
+    const url=URL.createObjectURL(f);
+    d.innerHTML=f.type.startsWith("video")?`<video src="${url}" muted></video><span class="vtag">视频</span>`:`<img src="${url}">`;
+    const b=document.createElement("button");b.className="rm";b.textContent="✕";
+    b.onclick=()=>{pendingFiles.splice(i,1);renderPending();};
+    d.appendChild(b);box.appendChild(d);
+  });
+}
+function addFiles(inp){pendingFiles.push(...[...inp.files]);inp.value="";renderPending();}
+async function saveDiary(){
+  const date=$("#f-date").value||now.toISOString().slice(0,10);
+  const plant=$("#f-plant").value.trim();
+  const stage=$("#fsheet").querySelector(".schip.on")?.textContent||"其他";
+  const text=$("#f-text").value.trim();
+  if(!plant){toast("请输入或选择植物名称 🌱");return;}
+  if(!text && !pendingFiles.length && !editingMedia.length){toast("写点什么或传张照片吧 ✍️");return;}
+  if(!idbOK && pendingFiles.length){
+    if(!confirm("当前以本地文件方式打开，浏览器限制了照片视频保存。\n是否仅保存文字记录？（完整功能请通过在线链接使用）"))return;
+    pendingFiles=[];
+  }
+  const mediaIds=[...(editingEntry?editingEntry.mediaIds:[])].filter(id=>!removedMedia.includes(id));
+  for(const f of pendingFiles){
+    const id="m_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
+    await idbPut("media",{id,name:f.name,type:f.type,blob:f});
+    mediaIds.push(id);
+  }
+  for(const mid of removedMedia){ if(idbOK){try{await idbDel("media",mid);}catch(e){}} }
+  const entry = editingEntry
+    ? {...editingEntry,date,plant,stage,text,mediaIds}
+    : {id:"e_"+Date.now(),date,plant,stage,text,mediaIds,created:new Date().toISOString()};
+  if(idbOK){await idbPut("diary",entry);}
+  else{const l=lsLoad().filter(x=>x.id!==entry.id);l.push(entry);lsSave(l);}
+  openGroups.add(plant);
+  await loadDiary();renderDiary();
+  closeForm(true);
+  toast(editingEntry?"已保存修改 ✅":"已记录「"+plant+" · "+stage+"」🌱");
+  editingEntry=null;pendingFiles=[];editingMedia=[];removedMedia=[];
+}
+function closeForm(saved){$("#fov").classList.remove("show");if(!saved)pendingFiles=[];}
+function lsLoad(){try{return JSON.parse(localStorage.getItem("gardenDiaryLS")||"[]")}catch(e){return[]}}
+function lsSave(list){try{localStorage.setItem("gardenDiaryLS",JSON.stringify(list))}catch(e){toast("⚠️ 存储空间不足，仅本次会话保存")}}
+async function loadDiary(){
+  if(!idbOK){entries=lsLoad().sort((a,b)=>b.date.localeCompare(a.date)||b.created.localeCompare(a.created));return;}
+  entries=(await idbAll("diary")).sort((a,b)=>b.date.localeCompare(a.date)||b.created.localeCompare(a.created));
+}
+let curGroups=[];
+const openGroups=new Set();
+function buildGroups(){
+  const q=$("#dq").value.trim();
+  const map=new Map();
+  entries.forEach(e=>{if(!map.has(e.plant))map.set(e.plant,[]);map.get(e.plant).push(e);});
+  let gs=[...map.entries()].map(([plant,list])=>{
+    const ls=list.slice().sort((a,b)=>a.date.localeCompare(b.date)||a.created.localeCompare(b.created));
+    return {plant,list:ls,latest:ls[ls.length-1],count:ls.length};
+  });
+  if(q)gs=gs.filter(g=>g.plant.includes(q)||g.list.some(e=>(e.text||"").includes(q)||(e.stage||"").includes(q)));
+  gs.sort((a,b)=>b.latest.date.localeCompare(a.latest.date));
+  return gs;
+}
+function dayGap(d1,d2){return Math.max(0,Math.round((new Date(d2)-new Date(d1))/86400000));}
+function renderDiary(){
+  curGroups=buildGroups();
+  if(!curGroups.length){
+    $("#diary-list").innerHTML=`<div class="empty"><div class="e-ic">📖</div>${entries.length?"没有匹配的记录":"还没有种植日记<br>点击「＋ 记一笔」开始记录<br>同一植物可以持续追加生长过程"}${(!idbOK&&!entries.length)?'<br><br><span style="color:#e65100">⚠️ 当前以本地文件打开，仅支持保存文字记录<br>完整功能（照片/视频）请通过在线链接使用</span>':""}</div>`;return;}
+  $("#diary-list").innerHTML=curGroups.map((g,i)=>{
+    const open=openGroups.has(g.plant);
+    const last=g.latest;
+    const photo=plantPhotos[g.plant];
+    const ago=dayGap(last.date,now.toISOString().slice(0,10));
+    const inCat=PLANTS.some(x=>x.name===g.plant);
+    return `<div class="dgroup ${open?'open':''}">
+      <div class="dg-head" onclick="toggleGroup(${i})">
+        <div class="dg-thumb">${photo?`<img src="${photo}" alt="">`:`<span class="dg-fb">${esc(g.plant.slice(0,1))}</span>`}</div>
+        <div class="dg-main">
+          <div class="dg-nm">🌱 ${esc(g.plant)}</div>
+          <div class="dg-meta"><span class="stage-b">${esc(last.stage||"")}</span>
+            <span class="dg-dt">${last.date} · 共 ${g.count} 次记录</span></div>
+        </div>
+        <div class="dg-right"><span class="dg-day">${ago===0?"今天":(ago+"天前")}</span><span class="dg-caret">▾</span></div>
+      </div>
+      ${open?`<div class="dg-body">
+        <div class="dg-add">
+          <button onclick="openDiaryForm(curGroups[${i}].plant)">＋ 记一笔</button>
+          ${inCat?`<button class="lnk" onclick="jumpPlant(curGroups[${i}].plant)">查看档案</button>`:`<button class="lnk" onclick="openPlantForm(curGroups[${i}].plant)">补建图鉴档案</button>`}
+          <span class="dg-tip">${g.count>1?"从 第1次 到 第"+g.count+"次，按时间倒序":""}</span>
+        </div>
+        <div class="timeline">
+          ${g.list.slice().reverse().map(e=>{
+            const idx=g.list.indexOf(e), prev=idx>0?g.list[idx-1]:null;
+            return `<div class="tl-item"><div class="tl-dot"></div><div class="tl-card">
+              <div class="tl-h">
+                <span class="tl-no">第${idx+1}次</span>
+                <span class="stage-b">${esc(e.stage||"")}</span>
+                <span class="tl-dt">${e.date}</span>
+                ${prev?`<span class="tl-gap">距上次 ${dayGap(prev.date,e.date)} 天</span>`:""}
+                <span class="tl-act">
+                  <button onclick="editEntry('${e.id}')" title="编辑">✏️</button>
+                  <button onclick="delEntry('${e.id}')" title="删除">🗑</button>
+                </span>
+              </div>
+              ${e.text?`<div class="txt">${esc(e.text)}</div>`:""}
+              ${e.mediaIds&&e.mediaIds.length?`<div class="dmedia" id="dm-${e.id}"></div>`:""}
+            </div></div>`;}).join("")}
+        </div>
+      </div>`:""}
+    </div>`;}).join("");
+  curGroups.forEach(g=>{if(openGroups.has(g.plant))g.list.forEach(e=>{if(e.mediaIds&&e.mediaIds.length)renderMedia(e);});});
+}
+function toggleGroup(i){
+  const p=curGroups[i]&&curGroups[i].plant;if(!p)return;
+  if(openGroups.has(p))openGroups.delete(p);else openGroups.add(p);
+  renderDiary();
+}
+function editEntry(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  openGroups.add(e.plant);
+  openDiaryForm(e.plant,id);
+}
+async function renderMedia(e){
+  const box=document.getElementById("dm-"+e.id);if(!box)return;
+  for(const mid of e.mediaIds){
+    const rec=await idbGet("media",mid);if(!rec)continue;
+    const url=URL.createObjectURL(rec.blob);
+    if(rec.type&&rec.type.startsWith("video")){
+      box.insertAdjacentHTML("beforeend",`<div class="m-item"><video src="${url}" controls playsinline preload="metadata"></video><span class="vtag">▶ 视频</span></div>`);
+    }else{
+      box.insertAdjacentHTML("beforeend",`<div class="m-item"><img src="${url}" onclick="window.open('${url}')" style="cursor:zoom-in"></div>`);
+    }
+  }
+}
+async function delEntry(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  if(!confirm(`确定删除「${e.plant}」的这条记录吗？\n${e.date} · ${e.stage}${e.mediaIds&&e.mediaIds.length?"（含"+e.mediaIds.length+"个附件）":""}`))return;
+  if(idbOK){
+    for(const mid of (e.mediaIds||[]))await idbDel("media",mid);
+    await idbDel("diary",id);
+  }else{lsSave(entries.filter(x=>x.id!==id));}
+  if(editingEntry&&editingEntry.id===id){closeForm(false);editingEntry=null;}
+  await loadDiary();renderDiary();toast("已删除");
+}
+function jumpPlant(name){
+  const p=PLANTS.find(x=>x.name===name);
+  if(p){go("catalog");openPlant(p.id);}
+  else toast("自定义植物，暂无图鉴档案");
+}
+function viewPlantDiary(name){
+  closeSheet();go("diary");
+  $("#dq").value="";
+  openGroups.add(name);
+  renderDiary();
+  const el=[...document.querySelectorAll(".dg-nm")].find(x=>x.textContent.includes(name));
+  if(el&&el.scrollIntoView)el.scrollIntoView({block:"center"});
+}
+
+/* 备份 */
+function blobToB64(blob){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob);});}
+async function exportData(){
+  if(!entries.length && !customPlants.length){toast("还没有日记或自定义植物可导出");return;}
+  const out={version:2,exported:new Date().toISOString(),entries:[],customPlants:[]};
+  for(const e of entries){
+    const ne={...e,mediaData:[]};
+    for(const mid of (e.mediaIds||[])){
+      const rec=await idbGet("media",mid);
+      if(rec)ne.mediaData.push({name:rec.name,type:rec.type,data:await blobToB64(rec.blob)});
+    }
+    out.entries.push(ne);
+  }
+  // 自定义植物
+  for(const cp of customPlants){
+    const rec=await idbGet("customPlants",cp.name);
+    if(rec)out.customPlants.push(rec);
+  }
+  // 用户上传的照片（覆盖 Excel 原图的）
+  out.photos=[];
+  for(const nm of Object.keys(userPhotos)){
+    const rec=await idbGet("plantPhotos",nm);
+    if(rec&&rec.blob)out.photos.push({name:nm,data:await blobToB64(rec.blob)});
+  }
+  const blob=new Blob([JSON.stringify(out)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="花园数据备份_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();toast("备份已导出 📦");
+}
+async function importData(inp){
+  const f=inp.files[0];if(!f)return;
+  try{
+    const data=JSON.parse(await f.text());
+    if(!data.entries && !data.customPlants)throw 0;
+    let n=0,nc=0,np=0;
+    for(const e of (data.entries||[])){
+      const mediaIds=[];
+      for(const md of (e.mediaData||[])){
+        const blob=await (await fetch(md.data)).blob();
+        const id="m_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
+        await idbPut("media",{id,name:md.name,type:md.type,blob});
+        mediaIds.push(id);
+      }
+      const {mediaData,...rest}=e;
+      await idbPut("diary",{...rest,mediaIds,id:"e_"+Date.now()+"_"+(n++)});
+    }
+    for(const cp of (data.customPlants||[])){
+      await idbPut("customPlants",cp);nc++;
+    }
+    for(const ph of (data.photos||[])){
+      const blob=await (await fetch(ph.data)).blob();
+      await idbPut("plantPhotos",{name:ph.name,blob});np++;
+    }
+    if(nc)  {customPlants=(data.customPlants||[]).map(x=>x);customPlants.forEach(mergeCustom);}
+    if(np)  {(data.photos||[]).forEach(async ph=>{const b=await(await fetch(ph.data)).blob();plantPhotos[ph.name]=URL.createObjectURL(b);userPhotos[ph.name]=true;});}
+    await loadDiary();renderDiary();renderCatalog();renderCal();
+    toast(`已导入：${n} 条日记、${nc} 种植物、${np} 张照片 📥`);
+  }catch(err){toast("导入失败：文件格式不正确");}
+  inp.value="";
+}
+
+/* ================= 病虫害 ================= */
+let curType="全部";
+function renderPests(){
+  const types=["全部","虫害","病害","生理"];
+  $("#pt-chips").innerHTML=types.map(t=>{const c=t==="全部"?PESTS.length:PESTS.filter(x=>x.type===t).length;
+    return `<div class="chip ${curType===t?'on':''}" onclick="curType='${t}';renderPests()">${t}<span class="cnt">${c}</span></div>`;}).join("");
+  const q=$("#pq").value.trim().toLowerCase();
+  const list=PESTS.filter(x=>(curType==="全部"||x.type===curType)&&
+    (!q||(x.name+x.symptom+x.season+x.drugs.map(d=>d.name+d.usage).join()+x.susceptible).toLowerCase().includes(q)));
+  $("#pest-list").innerHTML = list.length?list.map(x=>`
+    <div class="pest-card" onclick="openPest(${PESTS.indexOf(x)})">
+      <div class="ph"><span class="nm">${x.type==="虫害"?"🐛":x.type==="病害"?"🦠":"🌡️"} ${x.name}</span><span class="t-b tb-${x.type}">${x.type}</span></div>
+      <div class="ss">${x.symptom}</div>
+      <div class="se">⏰ ${x.season}</div>
+    </div>`).join(""):`<div class="empty"><div class="e-ic">🔍</div>没有匹配的条目</div>`;
+}
+function openPest(i){
+  const x=PESTS[i];if(!x)return;
+  const icon=x.type==="虫害"?"🐛":x.type==="病害"?"🦠":"🌡️";
+  $("#sheet").innerHTML=`
+    <div class="grab"></div><button class="close-x" onclick="closeSheet()">✕</button>
+    <div class="d-head"><div class="t">${icon} ${x.name} <span class="t-b tb-${x.type}">${x.type}</span></div>
+      <div class="s">高发期：${x.months.map(m=>m+"月").join("、")}</div></div>
+    <div class="d-sec"><h3>⏰ 发生规律</h3><div class="info-list"><div class="row"><div class="v">${esc(x.season)}</div></div></div></div>
+    <div class="d-sec"><h3>🔍 症状识别</h3><div class="info-list"><div class="row"><div class="v">${esc(x.symptom)}</div></div></div></div>
+    <div class="d-sec"><h3>🎯 易感植物</h3><div class="pest-chips">${x.susceptible.split("、").map(s=>`<span class="pest-chip pc-${x.type==="虫害"?"虫害":(x.type==="病害"?"病害":"生理")}" style="cursor:default">${s}</span>`).join("")}</div></div>
+    <div class="d-sec"><h3>💊 药物防治</h3><div class="drug-tbl">${x.drugs.map(d=>`<div class="dr"><div class="dn">${esc(d.name)}</div><div class="du">${esc(d.usage)}</div></div>`).join("")}</div></div>
+    <div class="d-sec"><h3>🌿 有机 / 家庭方案</h3><ul class="org-list">${x.organic.map(o=>`<li>${o}</li>`).join("")}</ul></div>
+    <div class="d-sec"><h3>🛡️ 预防要点</h3><ul class="prev-list">${x.prevention.map(o=>`<li>${o}</li>`).join("")}</ul></div>
+    <div style="height:20px"></div>`;
+  $("#ovl").classList.add("show");$("#sheet").scrollTop=0;
+}
+
+/* ================= nav & init ================= */
+function go(t){
+  document.querySelectorAll(".tab-page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("on"));
+  $("#page-"+t).classList.add("active");$("#nav-"+t).classList.add("on");
+  window.scrollTo(0,0);
+}
+function openSettings(){$("#setmask").classList.add("show");}
+/* ---------- PWA 安装 ---------- */
+let deferredInstall=null;
+function pwaHidden(){return localStorage.getItem("pwaTipHide")==="1";}
+function pwaInstalled(){
+  return window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone===true;
+}
+function showPwaTip(canInstall){
+  if(pwaHidden()||pwaInstalled())return;
+  const el=$("#pwa-tip");el.style.display="flex";
+  if(canInstall){
+    $("#pwa-install").style.display="";
+    $("#pwa-tip-text").textContent="把「我的花园」安装到手机桌面，离线也能用";
+  }else{
+    $("#pwa-install").style.display="none";
+    const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    $("#pwa-tip-text").textContent=isIOS
+      ?"iPhone 请用 Safari 打开 → 分享按钮 → 添加到主屏幕"
+      :"请用 Chrome/Edge 打开本页，点浏览器菜单「添加到主屏幕/安装应用」";
+  }
+}
+function hidePwaTip(manual){
+  if(manual)localStorage.setItem("pwaTipHide","1");
+  $("#pwa-tip").style.display="none";
+}
+async function doInstall(){
+  if(!deferredInstall){toast("请用浏览器菜单「添加到主屏幕」");return;}
+  deferredInstall.prompt();
+  const r=await deferredInstall.userChoice;
+  if(r.outcome==="accepted"){toast("正在安装到桌面 📲");hidePwaTip();}
+  deferredInstall=null;
+}
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();
+  deferredInstall=e;
+  showPwaTip(true);
+});
+window.addEventListener("appinstalled",()=>{
+  deferredInstall=null;
+  localStorage.setItem("pwaTipHide","1");
+  hidePwaTip();
+  toast("已安装到桌面 🌻");
+});
+(async function init(){
+  renderCatalog();renderCal();renderPests();
+  try{await idbOpen();await loadAllPhotos();await loadCustomPlants();await loadDiary();}catch(e){console.warn(e);}
+  if(entries.length){const g=buildGroups();if(g.length)openGroups.add(g[0].plant);}
+  renderCatalog();   // 重新渲染以应用加载到的照片和自定义植物
+  renderCal();renderDiary();
+  setupSW();
+  // 3 秒后仍未触发安装事件，显示通用引导提示
+  setTimeout(()=>{if(!deferredInstall)showPwaTip(false);},3000);
+})();
+/* ---------- 版本更新：关闭重开自动加载最新版 ---------- */
+function setupSW(){
+  if(!("serviceWorker" in navigator)||!location.protocol.startsWith("http"))return;
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    reg.update();
+    reg.addEventListener("updatefound",()=>{
+      const nw=reg.installing;if(!nw)return;
+      nw.addEventListener("statechange",()=>{
+        if(nw.state==="installed"&&navigator.serviceWorker.controller){
+          toast("已更新到最新版本 ✅");
+          setTimeout(()=>location.reload(),900);
+        }
+      });
+    });
+  }).catch(()=>{});
+  // 从后台切回前台时检查更新
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="visible"){
+      navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});
+    }
+  });
+}
+</script>
+</body>
+</html>
